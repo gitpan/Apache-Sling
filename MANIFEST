@@ -1,0 +1,6 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/Apache-Sling.t
+lib/Apache/Sling.pm
