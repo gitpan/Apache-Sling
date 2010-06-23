@@ -10,7 +10,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 # Preloaded methods go here.
@@ -49,7 +49,11 @@ If you have a web site set up for your module, mention it here.
 
 D. D. Parry, E<lt>perl@ddp.me.ukE<gt>
 
-=head1 COPYRIGHT AND LICENSE
+=head1 VERSION
+
+0.03
+
+=head1 LICENSE AND COPYRIGHT
 
 Copyright (C) 2010 by D. D. Parry
 

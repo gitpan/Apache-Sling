@@ -16,7 +16,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -48,7 +48,7 @@ sub string_to_request {
     if ( $action =~ /^post$/x ) {
         my $variables = join( " ", @reqVariables );
         my $postVariables;
-        my $success = eval { $variables };
+        my $success = eval ( $variables );
         if ( !defined $success ) {
             croak "Error \"$@\" parsing post variables: \"$variables\"";
         }
@@ -59,7 +59,7 @@ sub string_to_request {
         # multi-part form upload
         my $variables = join( " ", @reqVariables );
         my $postVariables;
-        my $success = eval { $variables };
+        my $success = eval ( $variables );
         if ( !defined $success ) {
             croak "Error \"$@\" parsing post variables: \"$variables\"";
         }
@@ -73,7 +73,7 @@ sub string_to_request {
         my $file      = shift(@reqVariables);
         my $variables = join( " ", @reqVariables );
         my $postVariables;
-        my $success = eval { $variables };
+        my $success = eval ( $variables );
 
         if ( !defined $success ) {
             croak "Error \"$@\" parsing post variables: \"$variables\"";

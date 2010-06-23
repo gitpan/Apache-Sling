@@ -1,4 +1,4 @@
-Apache-Sling version 0.02
+Apache-Sling version 0.03
 =========================
 
 Welcome to the Apache Sling library for perl. This library sets out to make it
@@ -38,6 +38,7 @@ Fcntl
 HTTP::Request::Common
 LWP::UserAgent
 MIME::Base64
+Text::CSV
 
 COPYRIGHT AND LICENCE
 
