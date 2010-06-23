@@ -1,5 +1,8 @@
 Revision history for Perl extension Apache::Sling.
 
+0.04  Wed Jun 23 20:10:00 2010
+        - Adding support for group management.
+
 0.03  Wed Jun 23 16:45:00 2010
         - Adding support for user management. Added a META.yml
           to define dependencies.
