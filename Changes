@@ -1,5 +1,8 @@
 Revision history for Perl extension Apache::Sling.
 
+0.02  Wed Jun 23 11:15:00 2010
+        - Tidying up and adherence to perlcritic --harsh
+
 0.01  Wed Jun  2 08:05:00 2010
 	- original version; created by h2xs 1.23 with options
 		-AX Apache::Sling

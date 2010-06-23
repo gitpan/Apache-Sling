@@ -5,30 +5,16 @@ package Apache::Sling::Print;
 use 5.008008;
 use strict;
 use warnings;
+use Carp;
 use Fcntl ':flock';
 
 require Exporter;
 
-our @ISA = qw(Exporter);
+use base qw(Exporter);
 
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
+our @EXPORT_OK = ();
 
-# This allows declaration	use Apache::Sling ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	
-);
-
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -58,9 +44,10 @@ sub print_with_lock {
         return print_file_lock( "$message", $file );
     }
     else {
-        return print_lock( "$message" );
+        return print_lock("$message");
     }
 }
+
 #}}}
 
 #{{{sub print_file_lock
@@ -77,17 +64,18 @@ writing to the file.
 
 sub print_file_lock {
     my ( $message, $file ) = @_;
-    if ( open( FILE, ">>$file" ) ) {
-        flock( FILE, LOCK_EX );
-        print FILE $message . "\n";
-        flock( FILE, LOCK_UN );
-        close( FILE );
+    if ( open my $out, ">>", $file ) {
+        flock( $out, LOCK_EX );
+        print $out $message . "\n";
+        flock( $out, LOCK_UN );
+        close($out);
     }
     else {
-        die "Could not open file: $file";
+        croak "Could not open file: $file";
     }
     return 1;
 }
+
 #}}}
 
 #{{{sub print_lock
@@ -102,19 +90,20 @@ threads or forks from stepping on each others toes when printing to stdout.
 =cut
 
 sub print_lock {
-    my ( $message ) = @_;
-    if ( open( LOCK, ">>/tmp/RestLock$$.txt" ) ) {
-        flock( LOCK, LOCK_EX );
+    my ($message) = @_;
+    if ( open my $lock, ">>", "/tmp/PrintLock$$.txt" ) {
+        flock( $lock, LOCK_EX );
         print $message . "\n";
-        flock( LOCK, LOCK_UN );
-        close( LOCK );
-        unlink( "/tmp/RestLock$$.txt" );
+        flock( $lock, LOCK_UN );
+        close($lock);
+        unlink("/tmp/PrintLock$$.txt");
     }
     else {
-        die "Could not open lock file: /tmp/RestLock$$.txt";
+        croak "Could not open lock file: /tmp/PrintLock$$.txt";
     }
     return 1;
 }
+
 #}}}
 
 #{{{sub print_result
@@ -132,19 +121,20 @@ happen elsewhere. TODO tidy that up.
 =cut
 
 sub print_result {
-    my ( $object ) = @_;
-    my $message = $object->{ 'Message' };
-    if ( $object->{ 'Verbose' } >= 1 ) {
-	$message .= "\n**** Status line was: ";
-        $message .= ${ $object->{ 'Response' } }->status_line;
-        if ( $object->{ 'Verbose' } >= 3 ) {
-	    $message .= "\n**** Full Content of Response was: \n";
-            $message .= ${ $object->{ 'Response' } }->content;
+    my ($object) = @_;
+    my $message = $object->{'Message'};
+    if ( $object->{'Verbose'} >= 1 ) {
+        $message .= "\n**** Status line was: ";
+        $message .= ${ $object->{'Response'} }->status_line;
+        if ( $object->{'Verbose'} >= 3 ) {
+            $message .= "\n**** Full Content of Response was: \n";
+            $message .= ${ $object->{'Response'} }->content;
         }
     }
-    print_with_lock( $message, $object->{ 'Log' } );
+    print_with_lock( $message, $object->{'Log'} );
     return 1;
 }
+
 #}}}
 
 #{{{sub dateTime
@@ -158,15 +148,26 @@ Returns a current date time string, which is useful for log timestamps.
 =cut
 
 sub dateTime {
-    my @months = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+    my @months   = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
     my @weekDays = qw(Sun Mon Tue Wed Thu Fri Sat Sun);
-    (my $second, my $minute, my $hour, my $dayOfMonth,
-     my $month, my $yearOffset, my $dayOfWeek, my $dayOfYear, my $daylightSavings) = localtime();
-    $second = "0$second" if $second < 10;
-    $second = "0$minute" if $minute < 10;
+    (
+        my $sec,
+        my $minute,
+        my $hour,
+        my $dayOfMonth,
+        my $month,
+        my $yearOffset,
+        my $dayOfWeek,
+        my $dayOfYear,
+        my $daylightSavings
+    ) = localtime();
+    $sec = "0$sec" if $sec < 10;
+    $sec = "0$minute" if $minute < 10;
     my $year = 1900 + $yearOffset;
-    return "$weekDays[$dayOfWeek] $months[$month] $dayOfMonth $hour:$minute:$second";
+    return
+      "$weekDays[$dayOfWeek] $months[$month] $dayOfMonth $hour:$minute:$sec";
 }
+
 #}}}
 
 1;

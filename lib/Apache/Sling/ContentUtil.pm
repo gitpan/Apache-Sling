@@ -5,30 +5,16 @@ package Apache::Sling::ContentUtil;
 use 5.008008;
 use strict;
 use warnings;
+use Carp;
 use Apache::Sling::URL;
 
 require Exporter;
 
-our @ISA = qw(Exporter);
+use base qw(Exporter);
 
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
+our @EXPORT_OK = ();
 
-# This allows declaration	use Apache::Sling ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	
-);
-
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -59,12 +45,15 @@ system.
 
 sub add_setup {
     my ( $baseURL, $remoteDest, $properties ) = @_;
-    die "No base URL provided!" unless defined $baseURL;
-    die "No position or ID to perform action for specified!" unless defined $remoteDest;
-    my $property_post_vars = Sling::URL::properties_array_to_string( $properties );
+    croak "No base URL provided!" unless defined $baseURL;
+    croak "No position or ID to perform action for specified!"
+      unless defined $remoteDest;
+    my $property_post_vars =
+      Apache::Sling::URL::properties_array_to_string($properties);
     my $postVariables = "\$postVariables = [$property_post_vars]";
     return "post $baseURL/$remoteDest $postVariables";
 }
+
 #}}}
 
 #{{{sub add_eval
@@ -78,9 +67,10 @@ Check result of adding content.
 =cut
 
 sub add_eval {
-    my ( $res ) = @_;
-    return ( $$res->code =~ /^20(0|1)$/ );
+    my ($res) = @_;
+    return ( $$res->code =~ /^20(0|1)$/x );
 }
+
 #}}}
 
 #{{{sub copy_setup
@@ -96,14 +86,16 @@ the system.
 
 sub copy_setup {
     my ( $baseURL, $remoteSrc, $remoteDest, $replace ) = @_;
-    die "No base url defined!" unless defined $baseURL;
-    die "No content destination to copy to defined!" unless defined $remoteDest;
-    die "No content source to copy from defined!" unless defined $remoteSrc;
-    my $postVariables = "\$postVariables = [':dest','$remoteDest',':operation','copy'";
+    croak "No base url defined!"                       unless defined $baseURL;
+    croak "No content destination to copy to defined!" unless defined $remoteDest;
+    croak "No content source to copy from defined!"    unless defined $remoteSrc;
+    my $postVariables =
+      "\$postVariables = [':dest','$remoteDest',':operation','copy'";
     $postVariables .= ( defined $replace ? ",':replace','true'" : "" );
     $postVariables .= "]";
     return "post $baseURL/$remoteSrc $postVariables";
 }
+
 #}}}
 
 #{{{sub copy_eval
@@ -119,9 +111,10 @@ else false.
 =cut
 
 sub copy_eval {
-    my ( $res ) = @_;
-    return ( $$res->code =~ /^20(0|1)$/ );
+    my ($res) = @_;
+    return ( $$res->code =~ /^20(0|1)$/x );
 }
+
 #}}}
 
 #{{{sub delete_setup
@@ -137,11 +130,12 @@ the system.
 
 sub delete_setup {
     my ( $baseURL, $remoteDest ) = @_;
-    die "No base url defined!" unless defined $baseURL;
-    die "No content destination to delete defined!" unless defined $remoteDest;
+    croak "No base url defined!"                      unless defined $baseURL;
+    croak "No content destination to delete defined!" unless defined $remoteDest;
     my $postVariables = "\$postVariables = [':operation','delete']";
     return "post $baseURL/$remoteDest $postVariables";
 }
+
 #}}}
 
 #{{{sub delete_eval
@@ -157,9 +151,10 @@ else false.
 =cut
 
 sub delete_eval {
-    my ( $res ) = @_;
-    return ( $$res->code =~ /^200$/ );
+    my ($res) = @_;
+    return ( $$res->code =~ /^200$/x );
 }
+
 #}}}
 
 #{{{sub exists_setup
@@ -175,10 +170,12 @@ exists in the system.
 
 sub exists_setup {
     my ( $baseURL, $remoteDest ) = @_;
-    die "No base url defined!" unless defined $baseURL;
-    die "No position or ID to perform exists for specified!" unless defined $remoteDest;
+    croak "No base url defined!" unless defined $baseURL;
+    croak "No position or ID to perform exists for specified!"
+      unless defined $remoteDest;
     return "get $baseURL/$remoteDest.json";
 }
+
 #}}}
 
 #{{{sub exists_eval
@@ -194,9 +191,10 @@ else false.
 =cut
 
 sub exists_eval {
-    my ( $res ) = @_;
-    return ( $$res->code =~ /^200$/ );
+    my ($res) = @_;
+    return ( $$res->code =~ /^200$/x );
 }
+
 #}}}
 
 #{{{sub move_setup
@@ -212,14 +210,16 @@ the system.
 
 sub move_setup {
     my ( $baseURL, $remoteSrc, $remoteDest, $replace ) = @_;
-    die "No base url defined!" unless defined $baseURL;
-    die "No content destination to move to defined!" unless defined $remoteDest;
-    die "No content source to move from defined!" unless defined $remoteSrc;
-    my $postVariables = "\$postVariables = [':dest','$remoteDest',':operation','move'";
+    croak "No base url defined!"                       unless defined $baseURL;
+    croak "No content destination to move to defined!" unless defined $remoteDest;
+    croak "No content source to move from defined!"    unless defined $remoteSrc;
+    my $postVariables =
+      "\$postVariables = [':dest','$remoteDest',':operation','move'";
     $postVariables .= ( defined $replace ? ",':replace','true'" : "" );
     $postVariables .= "]";
     return "post $baseURL/$remoteSrc $postVariables";
 }
+
 #}}}
 
 #{{{sub move_eval
@@ -235,9 +235,10 @@ else false.
 =cut
 
 sub move_eval {
-    my ( $res ) = @_;
-    return ( $$res->code =~ /^20(0|1)$/ );
+    my ($res) = @_;
+    return ( $$res->code =~ /^20(0|1)$/x );
 }
+
 #}}}
 
 #{{{sub upload_file_setup
@@ -252,13 +253,16 @@ Returns a textual representation of the request needed to upload a file to the s
 
 sub upload_file_setup {
     my ( $baseURL, $localPath, $remoteDest, $filename ) = @_;
-    die "No base URL provided to upload against!" unless defined $baseURL;
-    die "No local file to upload defined!" unless defined $localPath;
-    die "No remote path to upload to defined for file $localPath!" unless defined $remoteDest;
-    $filename = "./*" unless ( $filename !~ /^$/ );
+    croak "No base URL provided to upload against!" unless defined $baseURL;
+    croak "No local file to upload defined!"        unless defined $localPath;
+    croak "No remote path to upload to defined for file $localPath!"
+      unless defined $remoteDest;
+    $filename = "./*" if ( $filename =~ /^$/x );
     my $postVariables = "\$postVariables = []";
-    return "fileupload $baseURL/$remoteDest $filename $localPath $postVariables";
+    return
+      "fileupload $baseURL/$remoteDest $filename $localPath $postVariables";
 }
+
 #}}}
 
 #{{{sub upload_file_eval
@@ -272,9 +276,10 @@ Check result of system upload_file.
 =cut
 
 sub upload_file_eval {
-    my ( $res ) = @_;
-    return ( $$res->code =~ /^20(0|1)$/ );
+    my ($res) = @_;
+    return ( $$res->code =~ /^20(0|1)$/x );
 }
+
 #}}}
 
 1;

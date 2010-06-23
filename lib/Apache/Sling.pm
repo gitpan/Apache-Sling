@@ -6,56 +6,35 @@ use warnings;
 
 require Exporter;
 
-our @ISA = qw(Exporter);
+use base qw(Exporter);
 
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
+our @EXPORT_OK = ();
 
-# This allows declaration	use Apache::Sling ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	
-);
-
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
 # Preloaded methods go here.
 
 1;
 __END__
-# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 
-Apache::Sling - Perl extension for blah blah blah
+Apache::Sling - Perl library for interacting with the apache sling web
+framework
 
 =head1 SYNOPSIS
 
   use Apache::Sling;
-  blah blah blah
 
 =head1 DESCRIPTION
 
-Stub documentation for Apache::Sling, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
-
-Blah blah blah.
+The Apache::Sling perl library is designed to provide a perl based interface on
+to the Apache sling web framework. 
 
 =head2 EXPORT
 
 None by default.
-
-
 
 =head1 SEE ALSO
 
@@ -64,17 +43,15 @@ related modules or operating system documentation (such as man pages
 in UNIX), or any relevant external documentation such as RFCs or
 standards.
 
-If you have a mailing list set up for your module, mention it here.
-
 If you have a web site set up for your module, mention it here.
 
 =head1 AUTHOR
 
-A. U. Thor, E<lt>dan@localdomainE<gt>
+D. D. Parry, E<lt>perl@ddp.me.ukE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2010 by A. U. Thor
+Copyright (C) 2010 by D. D. Parry
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.8 or,

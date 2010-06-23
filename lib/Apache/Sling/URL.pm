@@ -8,26 +8,12 @@ use warnings;
 
 require Exporter;
 
-our @ISA = qw(Exporter);
+use base qw(Exporter);
 
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
+our @EXPORT_OK = ();
 
-# This allows declaration	use Apache::Sling ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
+our $VERSION = '0.02';
 
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	
-);
-
-our $VERSION = '0.01';
 =head1 NAME
 
 URL - useful utility functions for manipulating URLs.
@@ -49,14 +35,15 @@ Function to add a leading slash to a string if one does not exist.
 =cut
 
 sub add_leading_slash {
-    my ( $value ) = @_;
+    my ($value) = @_;
     if ( defined $value ) {
-        if ( $value !~ /^\// ) {
+        if ( $value !~ /^\//x ) {
             $value = "/$value";
         }
     }
-    return ( $value );
+    return ($value);
 }
+
 #}}}
 
 #{{{sub strip_leading_slash
@@ -70,12 +57,13 @@ Function to remove any leading slashes from a string.
 =cut
 
 sub strip_leading_slash {
-    my ( $value ) = @_;
+    my ($value) = @_;
     if ( defined $value ) {
-        $value =~ s/^\///;
+        $value =~ s/^\///x;
     }
-    return ( $value );
+    return ($value);
 }
+
 #}}}
 
 #{{{sub properties_array_to_string
@@ -90,17 +78,18 @@ representation.
 =cut
 
 sub properties_array_to_string {
-    my ( $properties ) = @_;
+    my ($properties) = @_;
     my $property_post_vars;
-    foreach my $property ( @{ $properties } ) {
-        $property =~ /^([^=]*)=(.*)/;
-	if ( defined $1 && defined $2 ) {
+    foreach my $property ( @{$properties} ) {
+        $property =~ /^([^=]*)=(.*)/x;
+        if ( defined $1 && defined $2 ) {
             $property_post_vars .= "'$1','$2',";
-	}
+        }
     }
-    $property_post_vars =~ s/,$//;
+    $property_post_vars =~ s/,$//x;
     return $property_post_vars;
 }
+
 #}}}
 
 #{{{sub urlencode
@@ -114,11 +103,12 @@ Function to encode a string so it is suitable for use in urls.
 =cut
 
 sub urlencode {
-    my ( $value ) = @_;
-    $value =~ s/([^a-zA-Z_0-9 ])/"%" . uc(sprintf "%lx" , unpack("C", $1))/eg;
+    my ($value) = @_;
+    $value =~ s/([^a-zA-Z_0-9 ])/"%" . uc(sprintf "%lx" , unpack("C", $1))/egx;
     $value =~ tr/ /+/;
     return ($value);
 }
+
 #}}}
 
 #{{{sub url_input_sanitize
@@ -133,13 +123,14 @@ missing.
 =cut
 
 sub url_input_sanitize {
-    my ( $url ) = @_;
+    my ($url) = @_;
     $url = ( defined $url ? $url : "http://localhost:8080" );
-    $url = ( $url !~ /^$/ ? $url : "http://localhost:8080" );
-    $url =~ s/(.*)\/$/$1/;
-    $url = ( $url !~ /^http/ ? "http://$url" : "$url" );
-    return ( $url );
+    $url = ( $url !~ /^$/x ? $url : "http://localhost:8080" );
+    $url =~ s/(.*)\/$/$1/x;
+    $url = ( $url !~ /^http/x ? "http://$url" : "$url" );
+    return ($url);
 }
+
 #}}}
 
 1;

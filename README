@@ -1,16 +1,25 @@
-Apache-Sling version 0.01
+Apache-Sling version 0.02
 =========================
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+Welcome to the Apache Sling library for perl. This library sets out to make it
+simple to interact with the apache sling web framework from a perl application,
+thus making it easier to harness the power of java and perl simultaneously!
 
-A README file is required for CPAN modules since CPAN extracts the
-README file from a module distribution so that people browsing the
-archive can use it get an idea of the modules uses. It is usually a
-good idea to provide version information here so that people can
-decide whether fixes for the module are worth downloading.
+Apache Sling is a web framework that uses a Java Content Repository, such as
+Apache Jackrabbit, to store and manage content.
+
+Sling applications use either scripts or Java servlets, selected based on
+simple name conventions, to process HTTP requests in a RESTful way.
+
+The embedded Apache Felix OSGi framework and console provide a dynamic runtime
+environment, where code and content bundles can be loaded, unloaded and
+reconfigured at runtime.
+
+As the first web framework dedicated to JSR-170 Java Content Repositories,
+Sling makes it very simple to implement simple applications, while providing an
+enterprise-level framework for more complex applications.
+
+See: http://sling.apache.org for more information about sling.
 
 INSTALLATION
 
@@ -25,13 +34,16 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-  blah blah blah
+Fcntl
+HTTP::Request::Common
+LWP::UserAgent
+MIME::Base64
 
 COPYRIGHT AND LICENCE
 
 Put the correct copyright and licence information here.
 
-Copyright (C) 2010 by A. U. Thor
+Copyright (C) 2010 by D. D. Parry
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.8 or,
