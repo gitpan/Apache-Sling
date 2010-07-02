@@ -1,4 +1,4 @@
-Apache-Sling version 0.04
+Apache-Sling version 0.05
 =========================
 
 Welcome to the Apache Sling library for perl. This library sets out to make it
@@ -34,10 +34,13 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
+Data::Dumper
 Fcntl
+File::Temp
 HTTP::Request::Common
 LWP::UserAgent
 MIME::Base64
+Net::LDAP
 Text::CSV
 
 COPYRIGHT AND LICENCE
