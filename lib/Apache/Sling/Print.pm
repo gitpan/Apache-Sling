@@ -7,6 +7,7 @@ use strict;
 use warnings;
 use Carp;
 use Fcntl ':flock';
+use File::Temp;
 
 require Exporter;
 
@@ -14,7 +15,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 NAME
 
@@ -91,15 +92,16 @@ threads or forks from stepping on each others toes when printing to stdout.
 
 sub print_lock {
     my ($message) = @_;
-    if ( open my $lock, ">>", "/tmp/PrintLock$$.txt" ) {
+    my ( $tmp_print_file_handle, $tmp_print_file_name ) = File::Temp::tempfile();
+    if ( open my $lock, ">>", $tmp_print_file_name ) {
         flock( $lock, LOCK_EX );
         print $message . "\n";
         flock( $lock, LOCK_UN );
         close($lock);
-        unlink("/tmp/PrintLock$$.txt");
+        unlink($tmp_print_file_name);
     }
     else {
-        croak "Could not open lock file: /tmp/PrintLock$$.txt";
+        croak q(Could not open lock on temporary file!);
     }
     return 1;
 }

@@ -6,6 +6,7 @@ use 5.008008;
 use strict;
 use warnings;
 use Carp;
+use File::Temp;
 use LWP::UserAgent ();
 use Apache::Sling::AuthnUtil;
 use Apache::Sling::Print;
@@ -18,7 +19,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 NAME
 
@@ -48,7 +49,9 @@ sub new {
 
     my $lwpUserAgent = LWP::UserAgent->new( keep_alive => 1 );
     push @{ $lwpUserAgent->requests_redirectable }, 'POST';
-    $lwpUserAgent->cookie_jar( { file => "/tmp/UserAgentCookies$$.txt" } );
+    my $tmp_cookie_file_name = File::Temp::tempnam(
+      File::Temp::tempdir( CLEANUP => 1 ), 'authn' );
+    $lwpUserAgent->cookie_jar( { file => $tmp_cookie_file_name } );
 
     my $response;
     my $authn = {
@@ -104,9 +107,9 @@ sub new {
 
 #{{{sub set_results
 sub set_results {
-    my ( $user, $message, $response ) = @_;
-    $user->{'Message'}  = $message;
-    $user->{'Response'} = $response;
+    my ( $class, $message, $response ) = @_;
+    $class->{'Message'}  = $message;
+    $class->{'Response'} = $response;
     return 1;
 }
 

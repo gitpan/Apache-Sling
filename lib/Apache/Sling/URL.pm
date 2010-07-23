@@ -12,7 +12,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 NAME
 
@@ -90,6 +90,9 @@ sub properties_array_to_string {
     }
     if (defined $property_post_vars) {
         $property_post_vars =~ s/,$//x;
+    }
+    else {
+        $property_post_vars = '';
     }
     return $property_post_vars;
 }
