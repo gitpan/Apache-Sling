@@ -12,7 +12,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 NAME
 
@@ -81,6 +81,7 @@ sub properties_array_to_string {
     my ($properties) = @_;
     my $property_post_vars;
     foreach my $property ( @{$properties} ) {
+
         # Escaping single quotes:
         $property =~ s/'/\\'/g;
         $property =~ /^([^=]*)=(.*)/x;
@@ -88,7 +89,7 @@ sub properties_array_to_string {
             $property_post_vars .= "'$1','$2',";
         }
     }
-    if (defined $property_post_vars) {
+    if ( defined $property_post_vars ) {
         $property_post_vars =~ s/,$//x;
     }
     else {
@@ -132,7 +133,7 @@ missing.
 sub url_input_sanitize {
     my ($url) = @_;
     $url = ( defined $url ? $url : "http://localhost:8080" );
-    $url = ( $url !~ /^$/x ? $url : "http://localhost:8080" );
+    $url = ( $url ne q{} ? $url : "http://localhost:8080" );
     $url =~ s/(.*)\/$/$1/x;
     $url = ( $url !~ /^http/x ? "http://$url" : "$url" );
     return ($url);
@@ -141,3 +142,55 @@ sub url_input_sanitize {
 #}}}
 
 1;
+
+__END__
+
+=head1 NAME
+
+=head1 ABSTRACT
+
+=head1 METHODS
+
+=head1 USAGE
+
+=head1 DESCRIPTION
+
+=head1 REQUIRED ARGUMENTS
+
+None required.
+
+=head1 OPTIONS
+
+n/a
+
+=head1 DIAGNOSTICS
+
+n/a
+
+=head1 EXIT STATUS
+
+0 on success.
+
+=head1 CONFIGURATION
+
+None required.
+
+=head1 DEPENDENCIES
+
+=head1 INCOMPATIBILITIES
+
+None known.
+
+=head1 BUGS AND LIMITATIONS
+
+None known.
+
+=head1 AUTHOR
+
+Daniel David Parry <perl@ddp.me.uk>
+
+=head1 LICENSE AND COPYRIGHT
+
+LICENSE: http://dev.perl.org/licenses/artistic.html
+
+COPYRIGHT: Daniel David Parry <perl@ddp.me.uk>

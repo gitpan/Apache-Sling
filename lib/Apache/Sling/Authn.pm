@@ -19,7 +19,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 #{{{sub new
 sub new {
@@ -232,22 +232,40 @@ Utility library providing useful utility functions for general Authn functionali
 
 =head1 REQUIRED ARGUMENTS
 
+None required.
+
 =head1 OPTIONS
+
+n/a
 
 =head1 DIAGNOSTICS
 
+n/a
+
 =head1 EXIT STATUS
 
+0 on success.
+
 =head1 CONFIGURATION
+
+None required.
 
 =head1 DEPENDENCIES
 
 =head1 INCOMPATIBILITIES
 
+None known.
+
 =head1 BUGS AND LIMITATIONS
+
+None known.
 
 =head1 AUTHOR
 
 Daniel David Parry <perl@ddp.me.uk>
 
 =head1 LICENSE AND COPYRIGHT
+
+LICENSE: http://dev.perl.org/licenses/artistic.html
+
+COPYRIGHT: Daniel David Parry <perl@ddp.me.uk>

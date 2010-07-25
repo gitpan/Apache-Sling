@@ -13,7 +13,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 #{{{sub basic_login_setup
 sub basic_login_setup {
@@ -44,7 +44,7 @@ sub form_login_setup {
 "No password supplied to attempt logging in with for user name: $username!";
     }
     my $post_variables =
-"\$postVariables = ['sakaiauth:un','$username','sakaiauth:pw','$password','sakaiauth:login','1']";
+"\$post_variables = ['sakaiauth:un','$username','sakaiauth:pw','$password','sakaiauth:login','1']";
     return "post $base_url/system/sling/formlogin $post_variables";
 }
 
@@ -62,7 +62,7 @@ sub form_login_eval {
 sub form_logout_setup {
     my ($base_url) = @_;
     if ( !defined $base_url ) { croak 'No base url defined!'; }
-    my $post_variables = q{$postVariables = ['sakaiauth:logout','1']};
+    my $post_variables = q{$post_variables = ['sakaiauth:logout','1']};
     return "post $base_url/system/sling/formlogin $post_variables";
 }
 
@@ -123,19 +123,33 @@ Verify whether the log out attempt for the user from the system was successful.
 
 =head1 REQUIRED ARGUMENTS
 
+None required.
+
 =head1 OPTIONS
+
+n/a
 
 =head1 DIAGNOSTICS
 
+n/a
+
 =head1 EXIT STATUS
 
+0 on success.
+
 =head1 CONFIGURATION
+
+None required.
 
 =head1 DEPENDENCIES
 
 =head1 INCOMPATIBILITIES
 
+None known.
+
 =head1 BUGS AND LIMITATIONS
+
+None known.
 
 =head1 AUTHOR
 
@@ -143,3 +157,6 @@ Daniel David Parry <perl@ddp.me.uk>
 
 =head1 LICENSE AND COPYRIGHT
 
+LICENSE: http://dev.perl.org/licenses/artistic.html
+
+COPYRIGHT: Daniel David Parry <perl@ddp.me.uk>
