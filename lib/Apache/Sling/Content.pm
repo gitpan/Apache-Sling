@@ -16,7 +16,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 #{{{sub new
 sub new {
@@ -236,12 +236,11 @@ __END__
 
 =head1 NAME
 
-Content - content related functionality for Sling implemented over rest
-APIs.
+Content
 
 =head1 ABSTRACT
 
-Perl library providing a layer of abstraction to the REST content methods
+content related functionality for Sling implemented over rest APIs.
 
 =head1 METHODS
 
@@ -252,6 +251,8 @@ Create, set up, and return a Content object.
 =head1 USAGE
 
 =head1 DESCRIPTION
+
+Perl library providing a layer of abstraction to the REST content methods
 
 =head1 REQUIRED ARGUMENTS
 
@@ -291,4 +292,4 @@ Daniel David Parry <perl@ddp.me.uk>
 
 LICENSE: http://dev.perl.org/licenses/artistic.html
 
-COPYRIGHT: Daniel David Parry <perl@ddp.me.uk>
+COPYRIGHT: (c) 2010 Daniel David Parry <perl@ddp.me.uk>

@@ -18,7 +18,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 #{{{sub new
 
@@ -365,12 +365,11 @@ __END__
 
 =head1 NAME
 
-Group - group related functionality for Sling implemented over rest
-APIs.
+Group
 
 =head1 ABSTRACT
 
-Perl library providing a layer of abstraction to the REST group methods
+group related functionality for Sling implemented over rest APIs.
 
 =head1 METHODS
 
@@ -380,7 +379,11 @@ Create, set up, and return a Group Object.
 
 =head1 USAGE
 
+use Apache::Sling::Group;
+
 =head1 DESCRIPTION
+
+Perl library providing a layer of abstraction to the REST group methods
 
 =head1 REQUIRED ARGUMENTS
 
@@ -420,4 +423,4 @@ Daniel David Parry <perl@ddp.me.uk>
 
 LICENSE: http://dev.perl.org/licenses/artistic.html
 
-COPYRIGHT: Daniel David Parry <perl@ddp.me.uk>
+COPYRIGHT: (c) 2010 Daniel David Parry <perl@ddp.me.uk>

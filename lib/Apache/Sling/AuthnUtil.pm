@@ -13,7 +13,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 #{{{sub basic_login_setup
 sub basic_login_setup {
@@ -82,11 +82,11 @@ __END__
 
 =head1 NAME
 
-AuthnUtil - useful utility functions for general Authn functionality.
+AuthnUtil
 
 =head1 ABSTRACT
 
-Utility library providing useful utility functions for general Authn functionality.
+useful utility functions for general Authn functionality.
 
 =head1 METHODS
 
@@ -119,7 +119,11 @@ Verify whether the log out attempt for the user from the system was successful.
 
 =head1 USAGE
 
+use Apache::Sling::AuthnUtil;
+
 =head1 DESCRIPTION
+
+Utility library providing useful utility functions for general Authn functionality.
 
 =head1 REQUIRED ARGUMENTS
 
@@ -159,4 +163,4 @@ Daniel David Parry <perl@ddp.me.uk>
 
 LICENSE: http://dev.perl.org/licenses/artistic.html
 
-COPYRIGHT: Daniel David Parry <perl@ddp.me.uk>
+COPYRIGHT: (c) 2010 Daniel David Parry <perl@ddp.me.uk>

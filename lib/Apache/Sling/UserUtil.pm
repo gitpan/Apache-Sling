@@ -14,46 +14,21 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.08';
-
-=head1 NAME
-
-UserUtil - Utility library returning strings representing Rest queries that
-perform user related actions in the system.
-
-=head1 ABSTRACT
-
-UserUtil perl library essentially provides the request strings needed to
-interact with user functionality exposed over the system rest interfaces.
-
-Each interaction has a setup and eval method. setup provides the request,
-whilst eval interprets the response to give further information about the
-result of performing the request.
-
-=cut
+our $VERSION = '0.09';
 
 #{{{sub add_setup
 
-=pod
-
-=head2 add_setup
-
-Returns a textual representation of the request needed to add the user to the
-system.
-
-=cut
-
 sub add_setup {
-    my ( $base_url, $actOnUser, $actOnPass, $properties ) = @_;
-    if ( !defined $base_url )   { croak 'No base url defined to add against!'; }
-    if ( !defined $actOnUser ) { croak 'No user name defined to add!'; }
-    if ( !defined $actOnPass ) {
-        croak "No user password defined to add for user $actOnUser!";
+    my ( $base_url, $act_on_user, $act_on_pass, $properties ) = @_;
+    if ( !defined $base_url ) { croak 'No base url defined to add against!'; }
+    if ( !defined $act_on_user ) { croak 'No user name defined to add!'; }
+    if ( !defined $act_on_pass ) {
+        croak "No user password defined to add for user $act_on_user!";
     }
     my $property_post_vars =
       Apache::Sling::URL::properties_array_to_string($properties);
     my $post_variables =
-"\$post_variables = [':name','$actOnUser','pwd','$actOnPass','pwdConfirm','$actOnPass'";
+"\$post_variables = [':name','$act_on_user','pwd','$act_on_pass','pwdConfirm','$act_on_pass'";
     if ( defined $property_post_vars && $property_post_vars ne q{} ) {
         $post_variables .= ",$property_post_vars";
     }
@@ -65,14 +40,6 @@ sub add_setup {
 
 #{{{sub add_eval
 
-=pod
-
-=head2 add_eval
-
-Check result of adding user to the system.
-
-=cut
-
 sub add_eval {
     my ($res) = @_;
     return ( $$res->code =~ /^200$/x );
@@ -82,47 +49,31 @@ sub add_eval {
 
 #{{{sub change_password_setup
 
-=pod
-
-=head2 change_password_setup
-
-Returns a textual representation of the request needed to change the password
-of the user in the system.
-
-=cut
-
 sub change_password_setup {
-    my ( $base_url, $actOnUser, $actOnPass, $newPass, $newPassConfirm ) = @_;
+    my ( $base_url, $act_on_user, $act_on_pass, $new_pass, $new_pass_confirm ) =
+      @_;
     if ( !defined $base_url ) { croak 'No base url defined to add against!'; }
-    if ( !defined $actOnUser ) {
+    if ( !defined $act_on_user ) {
         croak 'No user name defined to change password for!';
     }
-    if ( !defined $actOnPass ) {
-        croak "No current password defined for $actOnUser!";
+    if ( !defined $act_on_pass ) {
+        croak "No current password defined for $act_on_user!";
     }
-    if ( !defined $newPass ) {
-        croak "No new password defined for $actOnUser!";
+    if ( !defined $new_pass ) {
+        croak "No new password defined for $act_on_user!";
     }
-    if ( !defined $newPassConfirm ) {
-        croak "No confirmation of new password defined for $actOnUser!";
+    if ( !defined $new_pass_confirm ) {
+        croak "No confirmation of new password defined for $act_on_user!";
     }
     my $post_variables =
-"\$post_variables = ['oldPwd','$actOnPass','newPwd','$newPass','newPwdConfirm','$newPassConfirm']";
+"\$post_variables = ['oldPwd','$act_on_pass','newPwd','$new_pass','newPwdConfirm','$new_pass_confirm']";
     return
-"post $base_url/system/userManager/user/$actOnUser.changePassword.html $post_variables";
+"post $base_url/system/userManager/user/$act_on_user.changePassword.html $post_variables";
 }
 
 #}}}
 
 #{{{sub change_password_eval
-
-=pod
-
-=head2 change_password_eval
-
-Verify whether the change password attempt for the user in the system was successful.
-
-=cut
 
 sub change_password_eval {
     my ($res) = @_;
@@ -133,35 +84,20 @@ sub change_password_eval {
 
 #{{{sub delete_setup
 
-=pod
-
-=head2 delete_setup
-
-Returns a textual representation of the request needed to delete the user from
-the system.
-
-=cut
-
 sub delete_setup {
-    my ( $base_url, $actOnUser ) = @_;
-    if ( !defined $base_url ) { croak 'No base url defined to delete against!'; }
-    if ( !defined $actOnUser ) { croak 'No user name defined to delete!'; }
+    my ( $base_url, $act_on_user ) = @_;
+    if ( !defined $base_url ) {
+        croak 'No base url defined to delete against!';
+    }
+    if ( !defined $act_on_user ) { croak 'No user name defined to delete!'; }
     my $post_variables = "\$post_variables = []";
     return
-"post $base_url/system/userManager/user/$actOnUser.delete.html $post_variables";
+"post $base_url/system/userManager/user/$act_on_user.delete.html $post_variables";
 }
 
 #}}}
 
 #{{{sub delete_eval
-
-=pod
-
-=head2 delete_eval
-
-Check result of deleting user from the system.
-
-=cut
 
 sub delete_eval {
     my ($res) = @_;
@@ -172,39 +108,20 @@ sub delete_eval {
 
 #{{{sub exists_setup
 
-=pod
-
-=head2 exists_setup
-
-Returns a textual representation of the request needed to test whether a given
-username exists in the system.
-
-=cut
-
 sub exists_setup {
-    my ( $base_url, $actOnUser ) = @_;
+    my ( $base_url, $act_on_user ) = @_;
     if ( !defined $base_url ) {
         croak 'No base url to check existence against!';
     }
-    if ( !defined $actOnUser ) {
+    if ( !defined $act_on_user ) {
         croak 'No user to check existence of defined!';
     }
-    return "get $base_url/system/userManager/user/$actOnUser.tidy.json";
+    return "get $base_url/system/userManager/user/$act_on_user.tidy.json";
 }
 
 #}}}
 
 #{{{sub exists_eval
-
-=pod
-
-=head2 exists_eval
-
-Inspects the result returned from issuing the request generated in exists_setup
-returning true if the result indicates the username does exist in the system,
-else false.
-
-=cut
 
 sub exists_eval {
     my ($res) = @_;
@@ -214,15 +131,6 @@ sub exists_eval {
 #}}}
 
 #{{{sub me_setup
-
-=pod
-
-=head2 me_setup
-
-Returns a textual representation of the request needed to return information
-about the current user.
-
-=cut
 
 sub me_setup {
     my ($base_url) = @_;
@@ -236,16 +144,6 @@ sub me_setup {
 
 #{{{sub me_eval
 
-=pod
-
-=head2 me_eval
-
-Inspects the result returned from issuing the request generated in me_setup
-returning true if the result indicates information was returned successfully,
-else false.
-
-=cut
-
 sub me_eval {
     my ($res) = @_;
     return ( $$res->code =~ /^200$/x );
@@ -254,15 +152,6 @@ sub me_eval {
 #}}}
 
 #{{{sub sites_setup
-
-=pod
-
-=head2 sites_setup
-
-Returns a textual representation of the request needed to return the list of
-sites the current user is a member of.
-
-=cut
 
 sub sites_setup {
     my ($base_url) = @_;
@@ -276,16 +165,6 @@ sub sites_setup {
 
 #{{{sub sites_eval
 
-=pod
-
-=head2 sites_eval
-
-Inspects the result returned from issuing the request generated in sites_setup
-returning true if the result indicates information was returned successfully,
-else false.
-
-=cut
-
 sub sites_eval {
     my ($res) = @_;
     return ( $$res->code =~ /^200$/x );
@@ -295,19 +174,12 @@ sub sites_eval {
 
 #{{{sub update_setup
 
-=pod
-
-=head2 update_setup
-
-Returns a textual representation of the request needed to update the user in the
-system.
-
-=cut
-
 sub update_setup {
-    my ( $base_url, $actOnUser, $properties ) = @_;
-    if ( !defined $base_url ) { croak 'No base url defined to update against!'; }
-    if ( !defined $actOnUser ) { croak 'No user name defined to update!'; }
+    my ( $base_url, $act_on_user, $properties ) = @_;
+    if ( !defined $base_url ) {
+        croak 'No base url defined to update against!';
+    }
+    if ( !defined $act_on_user ) { croak 'No user name defined to update!'; }
     my $property_post_vars =
       Apache::Sling::URL::properties_array_to_string($properties);
     my $post_variables = "\$post_variables = [";
@@ -316,20 +188,12 @@ sub update_setup {
     }
     $post_variables .= "]";
     return
-"post $base_url/system/userManager/user/$actOnUser.update.html $post_variables";
+"post $base_url/system/userManager/user/$act_on_user.update.html $post_variables";
 }
 
 #}}}
 
 #{{{sub update_eval
-
-=pod
-
-=head2 update_eval
-
-Check result of updateing user to the system.
-
-=cut
 
 sub update_eval {
     my ($res) = @_;
@@ -344,13 +208,96 @@ __END__
 
 =head1 NAME
 
+UserUtil
+
 =head1 ABSTRACT
+
+Utility library returning strings representing Rest queries that perform
+user related actions in the system.
 
 =head1 METHODS
 
+=head2 add_setup
+
+Returns a textual representation of the request needed to add the user to the
+system.
+
+=head2 add_eval
+
+Check result of adding user to the system.
+
+=head2 change_password_setup
+
+Returns a textual representation of the request needed to change the password
+of the user in the system.
+
+=head2 change_password_eval
+
+Verify whether the change password attempt for the user in the system was successful.
+
+=head2 delete_setup
+
+Returns a textual representation of the request needed to delete the user from
+the system.
+
+=head2 delete_eval
+
+Check result of deleting user from the system.
+
+=head2 exists_setup
+
+Returns a textual representation of the request needed to test whether a given
+username exists in the system.
+
+=head2 exists_eval
+
+Inspects the result returned from issuing the request generated in exists_setup
+returning true if the result indicates the username does exist in the system,
+else false.
+
+=head2 me_setup
+
+Returns a textual representation of the request needed to return information
+about the current user.
+
+=head2 me_eval
+
+Inspects the result returned from issuing the request generated in me_setup
+returning true if the result indicates information was returned successfully,
+else false.
+
+=head2 sites_setup
+
+Returns a textual representation of the request needed to return the list of
+sites the current user is a member of.
+
+=head2 sites_eval
+
+Inspects the result returned from issuing the request generated in sites_setup
+returning true if the result indicates information was returned successfully,
+else false.
+
+=head2 update_setup
+
+Returns a textual representation of the request needed to update the user in the
+system.
+
+=head2 update_eval
+
+Check result of updateing user to the system.
+
 =head1 USAGE
 
+use Apache::Sling::UserUtil;
+
 =head1 DESCRIPTION
+
+UserUtil perl library essentially provides the request strings needed to
+interact with user functionality exposed over the system rest interfaces.
+
+Each interaction has a setup and eval method. setup provides the request,
+whilst eval interprets the response to give further information about the
+result of performing the request.
 
 =head1 REQUIRED ARGUMENTS
 
@@ -390,4 +337,4 @@ Daniel David Parry <perl@ddp.me.uk>
 
 LICENSE: http://dev.perl.org/licenses/artistic.html
 
-COPYRIGHT: Daniel David Parry <perl@ddp.me.uk>
+COPYRIGHT: (c) 2010 Daniel David Parry <perl@ddp.me.uk>
