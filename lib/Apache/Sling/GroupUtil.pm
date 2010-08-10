@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 package Apache::Sling::GroupUtil;
 
@@ -14,7 +14,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 #{{{sub add_setup
 
@@ -174,7 +174,7 @@ __END__
 
 =head1 NAME
 
-GroupUtil
+Apache::Sling::GroupUtil Methods to generate and check HTTP requests required for manipulating groups.
 
 =head1 ABSTRACT
 

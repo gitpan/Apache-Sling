@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 package Apache::Sling::Group;
 
@@ -18,7 +18,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 #{{{sub new
 
@@ -365,7 +365,7 @@ __END__
 
 =head1 NAME
 
-Group
+Apache::Sling::Group - Manipulate Groups in an Apache Sling instance.
 
 =head1 ABSTRACT
 

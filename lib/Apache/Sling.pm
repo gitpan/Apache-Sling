@@ -1,3 +1,4 @@
+#!/usr/bin/perl -w
 package Apache::Sling;
 
 use 5.008008;
@@ -10,7 +11,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 
 # Preloaded methods go here.
@@ -20,8 +21,7 @@ __END__
 
 =head1 NAME
 
-Apache::Sling - Perl library for interacting with the apache sling web
-framework
+Apache::Sling - Perl library for interacting with the apache sling web framework
 
 =head1 SYNOPSIS
 
@@ -46,7 +46,7 @@ D. D. Parry, E<lt>perl@ddp.me.ukE<gt>
 
 =head1 VERSION
 
-0.10
+0.11
 
 =head1 LICENSE AND COPYRIGHT
 

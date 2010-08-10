@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 package Apache::Sling::ContentUtil;
 
@@ -14,7 +14,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 #{{{sub add_setup
 
@@ -178,7 +178,7 @@ __END__
 
 =head1 NAME
 
-ContentUtil
+Apache::Sling::ContentUtil - Methods to generate and check HTTP requests required for manipulating content.
 
 =head1 ABSTRACT
 

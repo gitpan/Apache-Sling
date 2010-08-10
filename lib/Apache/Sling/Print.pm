@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 package Apache::Sling::Print;
 
@@ -15,7 +15,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 #{{{sub print_with_lock
 
@@ -120,7 +120,7 @@ __END__
 
 =head1 NAME
 
-Print
+Apache::Sling::Print - functions used for printing by the Apache::Sling library.
 
 =head1 ABSTRACT
 

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 package Apache::Sling::Content;
 
@@ -16,7 +16,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 #{{{sub new
 sub new {
@@ -236,7 +236,7 @@ __END__
 
 =head1 NAME
 
-Content
+Apache::Sling::Content - Manipulate Content in an Apache SLing instance.
 
 =head1 ABSTRACT
 

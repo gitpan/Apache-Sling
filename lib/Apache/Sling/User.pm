@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 package Apache::Sling::User;
 
@@ -17,7 +17,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 #{{{sub new
 
@@ -193,24 +193,6 @@ sub check_exists {
 
 #}}}
 
-#{{{sub me
-sub me {
-    my ($user) = @_;
-    my $res =
-      Apache::Sling::Request::request( \$user,
-        Apache::Sling::UserUtil::me_setup( $user->{'BaseURL'} ) );
-    my $success = Apache::Sling::UserUtil::me_eval($res);
-    my $message = (
-        $success
-        ? ${$res}->content
-        : 'Problem fetching details for current user'
-    );
-    $user->set_results( "$message", $res );
-    return $success;
-}
-
-#}}}
-
 #{{{sub sites
 sub sites {
     my ($user) = @_;
@@ -274,7 +256,7 @@ __END__
 
 =head1 NAME
 
-User
+Apache::Sling::User - Methods for manipulating users in an Apache Sling system.
 
 =head1 ABSTRACT
 

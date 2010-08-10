@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 package Apache::Sling::URL;
 
@@ -12,7 +12,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 #{{{sub add_leading_slash
 
@@ -96,7 +96,7 @@ __END__
 
 =head1 NAME
 
-URL
+Apache::Sling::URL - Functions for handling urls to be passed from/to an Apache Sling instance.
 
 =head1 ABSTRACT
 

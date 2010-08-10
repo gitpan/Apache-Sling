@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 package Apache::Sling::Request;
 
@@ -16,7 +16,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 #{{{sub string_to_request
 
@@ -126,7 +126,7 @@ __END__
 
 =head1 NAME
 
-Request
+Apache::Sling::Request - Functions used for making HTTP Requests to an Apache Sling instance.
 
 =head1 ABSTRACT
 

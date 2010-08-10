@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 package Apache::Sling::Authn;
 
@@ -19,7 +19,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 #{{{sub new
 sub new {
@@ -50,37 +50,7 @@ sub new {
 # Authn references itself to be compatibile with Apache::Sling::Request::request
     $authn->{'Authn'} = \$authn;
     bless $authn, $class;
-
-    # Apply basic authentication to the user agent if url, username and
-    # password are supplied:
-    if ( defined $url && defined $username && defined $password ) {
-        if ( $type eq 'basic' ) {
-            my $success = $authn->basic_login();
-            if ( !$success ) {
-                if ( $verbose >= 1 ) {
-                    Apache::Sling::Print::print_result($authn);
-                }
-                croak
-"Basic Auth log in for user \"$username\" at URL \"$url\" was unsuccessful\n";
-            }
-        }
-        elsif ( $type eq 'form' ) {
-            my $success = $authn->form_login();
-            if ( !$success ) {
-                if ( $verbose >= 1 ) {
-                    Apache::Sling::Print::print_result($authn);
-                }
-                croak
-"Form log in for user \"$username\" at URL \"$url\" was unsuccessful\n";
-            }
-        }
-        else {
-            croak "Unsupported auth type: \"$type\"\n";
-        }
-        if ( $verbose >= 1 ) {
-            Apache::Sling::Print::print_result($authn);
-        }
-    }
+    $authn->login_user;
     return $authn;
 }
 
@@ -111,39 +81,37 @@ sub basic_login {
 
 #}}}
 
-#{{{sub form_login
-sub form_login {
-    my ($authn)  = @_;
-    my $username = $authn->{'Username'};
-    my $password = $authn->{'Password'};
-    my $res      = Apache::Sling::Request::request(
-        \$authn,
-        Apache::Sling::AuthnUtil::form_login_setup(
-            $authn->{'BaseURL'}, $username, $password
-        )
-    );
-    my $success = Apache::Sling::AuthnUtil::form_login_eval($res);
-    my $message = "Form log in as user \"$username\" ";
-    $message .= ( $success ? 'succeeded!' : 'failed!' );
-    $authn->set_results( "$message", $res );
-    return $success;
-}
-
-#}}}
-
-#{{{sub form_logout
-sub form_logout {
+#{{{sub login_user
+sub login_user {
     my ($authn) = @_;
-    my $res =
-      Apache::Sling::Request::request( \$authn,
-        Apache::Sling::AuthnUtil::form_logout_setup( $authn->{'BaseURL'} ) );
-    my $success = Apache::Sling::AuthnUtil::form_logout_eval($res);
-    my $message = 'Form log out ';
-    $message .= ( $success ? 'succeeded!' : 'failed!' );
-    $authn->set_results( "$message", $res );
-    return $success;
-}
 
+    # Apply basic authentication to the user agent if url, username and
+    # password are supplied:
+    if (   defined $authn->{'BaseURL'}
+        && defined $authn->{'Username'}
+        && defined $authn->{'Password'} )
+    {
+        if ( $authn->{'Type'} eq 'basic' ) {
+            my $success = $authn->basic_login();
+            if ( !$success ) {
+                if ( $authn->{'Verbose'} >= 1 ) {
+                    Apache::Sling::Print::print_result($authn);
+                }
+                croak 'Basic Auth log in for user "'
+                  . $authn->{'Username'}
+                  . '" at URL "'
+                  . $authn->{'BaseURL'}
+                  . "\" was unsuccessful\n";
+            }
+        }
+        else {
+            croak 'Unsupported auth type: "' . $authn->{'Type'} . "\"\n";
+        }
+        if ( $authn->{'Verbose'} >= 1 ) {
+            Apache::Sling::Print::print_result($authn);
+        }
+    }
+}
 #}}}
 
 #{{{sub switch_user
@@ -160,19 +128,6 @@ sub switch_user {
     {
         $authn->{'Username'} = $new_username;
         $authn->{'Password'} = $new_password;
-        if ( $authn->{'Type'} eq 'form' ) {
-
-            # If we were previously using form auth then we must log
-            # out with form auth, even if we are switching to basic auth.
-            my $success = $authn->form_logout();
-            if ( !$success ) {
-                croak 'Form Auth log out for user "'
-                  . $authn->{'Username'}
-                  . '" at URL "'
-                  . $authn->{'BaseURL'}
-                  . "\" was unsuccessful\n";
-            }
-        }
         if ( defined $type ) {
             $authn->{'Type'} = $type;
         }
@@ -189,14 +144,6 @@ sub switch_user {
             }
             else {
                 $authn->{'Message'} = 'Fast User Switch completed!';
-            }
-        }
-        elsif ( $authn->{'Type'} eq 'form' ) {
-            my $success = $authn->form_login();
-            if ( !$success ) {
-                croak "Form Auth log in for user \"$new_username\" at URL \""
-                  . $authn->{'BaseURL'}
-                  . "\" was unsuccessful\n";
             }
         }
         else {
@@ -220,11 +167,11 @@ __END__
 
 =head1 NAME
 
-Authn
+Apache::Sling::Authn - Authenticate to an Apache Sling instance.
 
 =head1 ABSTRACT
 
-useful utility functions for general Authn functionality.
+Useful utility functions for general Authn functionality.
 
 =head1 USAGE
 
@@ -232,7 +179,7 @@ use Apache::Sling::Authn;
 
 =head1 DESCRIPTION
 
-Utility library providing useful utility functions for general Authn functionality.
+Library providing useful utility functions for general Authn functionality.
 
 =head1 REQUIRED ARGUMENTS
 
