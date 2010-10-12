@@ -17,7 +17,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 #{{{sub new
 
@@ -119,7 +119,7 @@ sub add_from_file {
                     for ( my $i = 2 ; $i < $number_of_columns ; $i++ ) {
                         my $heading = $column_headings[$i];
                         my $data    = $columns[$i];
-                        my $value   = "$heading = $data";
+                        my $value   = "$heading=$data";
                         push @properties, $value;
                     }
                     $user->add( $id, $password, \@properties );
@@ -157,24 +157,6 @@ sub change_password {
 
 #}}}
 
-#{{{sub del
-sub del {
-    my ( $user, $act_on_user ) = @_;
-    my $res = Apache::Sling::Request::request(
-        \$user,
-        Apache::Sling::UserUtil::delete_setup(
-            $user->{'BaseURL'}, $act_on_user
-        )
-    );
-    my $success = Apache::Sling::UserUtil::delete_eval($res);
-    my $message = "User: \"$act_on_user\" ";
-    $message .= ( $success ? 'deleted!' : 'was not deleted!' );
-    $user->set_results( "$message", $res );
-    return $success;
-}
-
-#}}}
-
 #{{{sub check_exists
 sub check_exists {
     my ( $user, $act_on_user ) = @_;
@@ -187,6 +169,24 @@ sub check_exists {
     my $success = Apache::Sling::UserUtil::exists_eval($res);
     my $message = "User \"$act_on_user\" ";
     $message .= ( $success ? 'exists!' : 'does not exist!' );
+    $user->set_results( "$message", $res );
+    return $success;
+}
+
+#}}}
+
+#{{{sub del
+sub del {
+    my ( $user, $act_on_user ) = @_;
+    my $res = Apache::Sling::Request::request(
+        \$user,
+        Apache::Sling::UserUtil::delete_setup(
+            $user->{'BaseURL'}, $act_on_user
+        )
+    );
+    my $success = Apache::Sling::UserUtil::delete_eval($res);
+    my $message = "User: \"$act_on_user\" ";
+    $message .= ( $success ? 'deleted!' : 'was not deleted!' );
     $user->set_results( "$message", $res );
     return $success;
 }
