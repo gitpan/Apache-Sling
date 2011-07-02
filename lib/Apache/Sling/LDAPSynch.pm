@@ -20,7 +20,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 #{{{sub new
 
@@ -48,9 +48,9 @@ sub new {
    # List of specific ldap users that are to be ingested in to the sling system:
     my $synch_user_list = q(user_list.txt);
     my $ldap;
-    my $content = Apache::Sling::Content->new( \$authn, $verbose, $log )
+    my $content = Apache::Sling::Content->new( $authn, $verbose, $log )
       or croak q(Problem creating Sling content object!);
-    my $user = Apache::Sling::User->new( \$authn, $verbose, $log )
+    my $user = Apache::Sling::User->new( $authn, $verbose, $log )
       or croak q(Problem creating Sling user object!);
     my $ldap_synch = {
         CacheBackupPath => $synch_cache_backup_path,
@@ -302,17 +302,19 @@ q(Successfully uploaded user list for use in subsequent synchronizations!);
 sub parse_attributes {
     my ( $ldap_attrs, $sling_attrs, $ldap_attrs_array, $sling_attrs_array ) =
       @_;
-    if ( defined $ldap_attrs ) {
-        @{$ldap_attrs_array} = split /,/msx, $ldap_attrs;
-    }
-    if ( defined $sling_attrs ) {
-        @{$sling_attrs_array} = split /,/msx, $sling_attrs;
-    }
-    if ( @{$ldap_attrs_array} != @{$sling_attrs_array} ) {
-        croak
-          q(Number of ldap attributes must match number of sling attributes, )
-          . @{$ldap_attrs_array} . ' != '
-          . @{$sling_attrs_array};
+    if ( defined $ldap_attrs_array && defined $sling_attrs_array ) {
+        if ( defined $ldap_attrs ) {
+            @{$ldap_attrs_array} = split /,/msx, $ldap_attrs;
+        }
+        if ( defined $sling_attrs ) {
+            @{$sling_attrs_array} = split /,/msx, $sling_attrs;
+        }
+        if ( @{$ldap_attrs_array} != @{$sling_attrs_array} ) {
+            croak
+              q(Number of ldap attributes must match number of sling attributes, )
+              . @{$ldap_attrs_array} . ' != '
+              . @{$sling_attrs_array};
+        }
     }
     return 1;
 }
@@ -473,7 +475,7 @@ sub synch_full {
 
 #{{{sub synch_full_since
 
-sub synch_since {
+sub synch_full_since {
     my ( $class, $ldap_attrs, $sling_attrs, $synch_since ) = @_;
     my $search = q{(modifytimestamp>=} . $synch_since . q{)};
     my $search_result = $class->ldap_search( $search, $ldap_attrs );
@@ -529,11 +531,6 @@ in an Apache Sling instance.
 
 Create, set up, and return an LDAPSynch object.
 
-=head2 synch_listed
-
-Perform a synchronization of Sling internal users with the external LDAP users
-for a set of users listed in a specified file.
-
 =head2 ldap_connect
 
 Connect to the ldap server.
@@ -582,6 +579,8 @@ have been made, then return true. Else return false.
 
 =head2 perform_synchronization
 
+Carry out the synchronization from LDAP to Sling.
+
 =head2 synch_full
 
 Perform a full synchronization of Sling internal users with the external LDAP
@@ -591,6 +590,11 @@ users.
 
 Perform a synchronization of Sling internal users with the external LDAP users,
 using LDAP changes since a given timestamp.
+
+=head2 synch_listed
+
+Perform a synchronization of Sling internal users with the external LDAP users
+for a set of users listed in a specified file.
 
 =head2 synch_listed_since
 

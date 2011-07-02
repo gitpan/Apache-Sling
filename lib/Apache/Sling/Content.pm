@@ -16,7 +16,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 #{{{sub new
 sub new {
@@ -25,7 +25,7 @@ sub new {
     my $response;
     $verbose = ( defined $verbose ? $verbose : 0 );
     my $content = {
-        BaseURL  => ${$authn}->{'BaseURL'},
+        BaseURL  => ${ $authn }->{'BaseURL'},
         Authn    => $authn,
         Message  => q{},
         Response => \$response,
@@ -141,6 +141,7 @@ sub move {
 #{{{sub upload_file
 sub upload_file {
     my ( $content, $local_path, $remote_path, $filename ) = @_;
+    $filename = defined $filename ? $filename : q{};
     my $res = Apache::Sling::Request::request(
         \$content,
         Apache::Sling::ContentUtil::upload_file_setup(
@@ -164,15 +165,15 @@ sub upload_file {
 sub upload_from_file {
     my ( $content, $file, $fork_id, $number_of_forks ) = @_;
     my $count = 0;
-    if ( open my ($input), '<', $file ) {
+    if ( defined $file && open my ($input), '<', $file ) {
         while (<$input>) {
             if ( $fork_id == ( $count++ % $number_of_forks ) ) {
                 chomp;
                 $_ =~ /^(.*?),(.*?)$/msx
                   or croak 'Problem parsing content to add';
-                my $local_path  = $1;
-                my $remote_path = $2;
-                if ( defined $local_path && defined $remote_path ) {
+                if ( defined $1 && defined $2 ) {
+                    my $local_path  = $1;
+                    my $remote_path = $2;
                     $content->upload_file( $local_path, $remote_path, q{} );
                     Apache::Sling::Print::print_result($content);
                 }
@@ -185,7 +186,8 @@ sub upload_from_file {
         close $input or croak 'Problem closing input!';
     }
     else {
-        croak "Problem opening file: $file";
+        $file = ( defined $file ? $file : '' );
+        croak "Problem opening file: '$file'";
     }
     return 1;
 }
@@ -216,6 +218,9 @@ sub view {
 #{{{sub view_file
 sub view_file {
     my ( $content, $remote_dest ) = @_;
+    if ( ! defined $remote_dest ) {
+        croak 'No file to view specified!';
+    }
     my $res = Apache::Sling::Request::request( \$content,
         "get $content->{ 'BaseURL' }/$remote_dest" );
     my $success = Apache::Sling::ContentUtil::exists_eval($res);
@@ -247,6 +252,46 @@ content related functionality for Sling implemented over rest APIs.
 =head2 new
 
 Create, set up, and return a Content object.
+
+=head2 set_results
+
+Set a suitable message and response for the content object.
+
+=head2 add
+
+Add new content to the system.
+
+=head2 copy
+
+Copy content in the system.
+
+=head2 check_exists
+
+Check whether content exists.
+
+=head2 del
+
+Delete content.
+
+=head2 move
+
+Move location of content in the system.
+
+=head2 upload_file
+
+Upload a file into the system.
+
+=head2 upload_from_file
+
+Upload new content to the system based on definitions in a file.
+
+=head2 view
+
+View content details.
+
+=head2 view_file
+
+View content.
 
 =head1 USAGE
 

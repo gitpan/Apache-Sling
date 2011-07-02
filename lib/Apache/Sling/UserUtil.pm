@@ -14,7 +14,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 #{{{sub add_setup
 
@@ -52,7 +52,7 @@ sub add_eval {
 sub change_password_setup {
     my ( $base_url, $act_on_user, $act_on_pass, $new_pass, $new_pass_confirm ) =
       @_;
-    if ( !defined $base_url ) { croak 'No base url defined to add against!'; }
+    if ( !defined $base_url ) { croak 'No base url defined!'; }
     if ( !defined $act_on_user ) {
         croak 'No user name defined to change password for!';
     }

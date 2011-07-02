@@ -19,14 +19,16 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 #{{{sub new
 sub new {
-    my ( $class, $url, $username, $password, $type, $verbose, $log ) = @_;
-    $url     = Apache::Sling::URL::url_input_sanitize($url);
-    $type    = ( defined $type ? $type : 'basic' );
-    $verbose = ( defined $verbose ? $verbose : 0 );
+    my ( $class, $sling ) = @_;
+    my $url = Apache::Sling::URL::url_input_sanitize( ${ $sling }->{'URL'} );
+    my $type =
+      ( defined ${ $sling }->{'Auth'} ? ${ $sling }->{'Auth'} : 'basic' );
+    my $verbose =
+      ( defined ${ $sling }->{'Verbose'} ? ${ $sling }->{'Verbose'} : 0 );
 
     my $lwp_user_agent = LWP::UserAgent->new( keep_alive => 1 );
     push @{ $lwp_user_agent->requests_redirectable }, 'POST';
@@ -39,12 +41,12 @@ sub new {
         BaseURL  => "$url",
         LWP      => \$lwp_user_agent,
         Type     => $type,
-        Username => $username,
-        Password => $password,
+        Username => ${ $sling }->{'User'},
+        Password => ${ $sling }->{'Pass'},
         Message  => q{},
         Response => \$response,
         Verbose  => $verbose,
-        Log      => $log
+        Log      => ${ $sling }->{'Log'}
     };
 
 # Authn references itself to be compatibile with Apache::Sling::Request::request
@@ -174,6 +176,28 @@ Apache::Sling::Authn - Authenticate to an Apache Sling instance.
 =head1 ABSTRACT
 
 Useful utility functions for general Authn functionality.
+
+=head1 METHODS
+
+=head2 new
+
+Create, set up, and return an Authn object.
+
+=head2 set_results
+
+Set a suitable message and response object.
+
+=head2 basic_login
+
+Perform basic authentication for a user.
+
+=head2 login_user
+
+Perform login authentication for a user.
+
+=head2 switch_user
+
+Switch to a different authenticated user.
 
 =head1 USAGE
 

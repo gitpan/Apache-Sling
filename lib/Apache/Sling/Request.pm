@@ -16,7 +16,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 #{{{sub string_to_request
 
@@ -27,7 +27,10 @@ sub string_to_request {
     if ( !defined $lwp ) {
         croak 'No reference to an lwp user agent supplied!';
     }
-    my ( $action, $target, @req_variables ) = split q{ }, $string;
+    # Split based on the space character (\x20) only, such that
+    # newlines, tabs etc are maintained in the request variables:
+    my ( $action, $target, @req_variables ) = split /\x20/, $string;
+    $action = ( defined $action ? $action : '' );
     my $request;
     if ( $action eq 'post' ) {
         my $variables = join q{ }, @req_variables;
@@ -73,7 +76,12 @@ sub string_to_request {
         $request = DELETE "$target";
     }
     if ( !defined $request ) {
-        $request = GET "$target";
+        if ( defined $target ) {
+            $request = GET "$target";
+        }
+        else {
+            croak 'Error generating request for blank target!';
+        }
     }
     if ( ${$authn}->{'Type'} eq 'basic' ) {
         my $username = ${$authn}->{'Username'};
@@ -86,7 +94,7 @@ sub string_to_request {
             $request->header( 'Authorization' => $encoded );
         }
     }
-    if ( $verbose >= 2 ) {
+    if ( defined $verbose && $verbose >= 2 ) {
         Apache::Sling::Print::print_with_lock(
             "**** String representation of compiled request:\n"
               . $request->as_string,
@@ -102,10 +110,10 @@ sub string_to_request {
 
 sub request {
     my ( $object, $string ) = @_;
-    if ( !defined $string ) { croak 'No string defined to turn into request!'; }
     if ( !defined $object ) {
         croak 'No reference to a suitable object supplied!';
     }
+    if ( !defined $string ) { croak 'No string defined to turn into request!'; }
     my $authn = ${$object}->{'Authn'};
     if ( !defined $authn ) {
         croak 'Object does not reference a suitable auth object';

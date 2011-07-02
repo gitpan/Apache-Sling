@@ -8,6 +8,7 @@ use Carp;
 use Apache::Sling::Authn;
 use Apache::Sling::Content;
 use Apache::Sling::Group;
+use Apache::Sling::LDAPSynch;
 use Apache::Sling::User;
 
 require Exporter;
@@ -16,7 +17,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 #{{{sub new
 
@@ -139,11 +140,7 @@ sub content_run {
             if ($pid) { push @childs, $pid; }    # parent
             elsif ( $pid == 0 ) {                # child
                     # Create a separate authorization per fork:
-                my $authn = new Apache::Sling::Authn(
-                    $sling->{'URL'},     $sling->{'User'},
-                    $sling->{'Pass'},    $sling->{'Auth'},
-                    $sling->{'Verbose'}, $sling->{'Log'}
-                );
+                my $authn = new Apache::Sling::Authn( \$sling );
                 my $content =
                   new Apache::Sling::Content( \$authn, $sling->{'Verbose'},
                     $sling->{'Log'} );
@@ -158,10 +155,7 @@ sub content_run {
         foreach (@childs) { waitpid $_, 0; }
     }
     else {
-        my $authn = new Apache::Sling::Authn(
-            $sling->{'URL'},  $sling->{'User'},    $sling->{'Pass'},
-            $sling->{'Auth'}, $sling->{'Verbose'}, $sling->{'Log'}
-        );
+        my $authn = new Apache::Sling::Authn( \$sling );
         my $content =
           new Apache::Sling::Content( \$authn, $sling->{'Verbose'},
             $sling->{'Log'} );
@@ -179,7 +173,7 @@ sub content_run {
         }
         elsif ( defined ${ $config->{'add'} } ) {
             $content->add( ${ $config->{'remote'} },
-                @{ $config->{'property'} } );
+                $config->{'property'} );
         }
         elsif ( defined ${ $config->{'copy'} } ) {
             $content->copy(
@@ -260,11 +254,7 @@ sub group_run {
             if ($pid) { push @childs, $pid; }    # parent
             elsif ( $pid == 0 ) {                # child
                     # Create a separate authorization per fork:
-                my $authn = new Apache::Sling::Authn(
-                    $sling->{'URL'},     $sling->{'User'},
-                    $sling->{'Pass'},    $sling->{'Auth'},
-                    $sling->{'Verbose'}, $sling->{'Log'}
-                );
+                my $authn = new Apache::Sling::Authn( \$sling );
                 my $group =
                   new Apache::Sling::Group( \$authn, $sling->{'Verbose'},
                     $sling->{'Log'} );
@@ -279,10 +269,7 @@ sub group_run {
         foreach (@childs) { waitpid $_, 0; }
     }
     else {
-        my $authn = new Apache::Sling::Authn(
-            $sling->{'URL'},  $sling->{'User'},    $sling->{'Pass'},
-            $sling->{'Auth'}, $sling->{'Verbose'}, $sling->{'Log'}
-        );
+        my $authn = new Apache::Sling::Authn( \$sling );
         my $group =
           new Apache::Sling::Group( \$authn, $sling->{'Verbose'},
             $sling->{'Log'} );
@@ -290,7 +277,7 @@ sub group_run {
             $group->check_exists( ${ $config->{'exists'} } );
         }
         elsif ( defined ${ $config->{'add'} } ) {
-            $group->add( ${ $config->{'add'} }, @{ $config->{'property'} } );
+            $group->add( ${ $config->{'add'} }, $config->{'property'} );
         }
         elsif ( defined ${ $config->{'delete'} } ) {
             $group->del( ${ $config->{'delete'} } );
@@ -357,11 +344,7 @@ sub group_member_run {
             if ($pid) { push @childs, $pid; }    # parent
             elsif ( $pid == 0 ) {                # child
                     # Create a separate authorization per fork:
-                my $authn = new Apache::Sling::Authn(
-                    $sling->{'URL'},     $sling->{'User'},
-                    $sling->{'Pass'},    $sling->{'Auth'},
-                    $sling->{'Verbose'}, $sling->{'Log'}
-                );
+                my $authn = new Apache::Sling::Authn( \$sling );
                 my $group =
                   new Apache::Sling::Group( \$authn, $sling->{'Verbose'},
                     $sling->{'Log'} );
@@ -376,10 +359,7 @@ sub group_member_run {
         foreach (@childs) { waitpid $_, 0; }
     }
     else {
-        my $authn = new Apache::Sling::Authn(
-            $sling->{'URL'},  $sling->{'User'},    $sling->{'Pass'},
-            $sling->{'Auth'}, $sling->{'Verbose'}, $sling->{'Log'}
-        );
+        my $authn = new Apache::Sling::Authn( \$sling );
         my $group =
           new Apache::Sling::Group( \$authn, $sling->{'Verbose'},
             $sling->{'Log'} );
@@ -463,10 +443,7 @@ sub ldap_synch_run {
     }
     $sling->check_forks;
 
-    my $authn = new Apache::Sling::Authn(
-        $sling->{'URL'},  $sling->{'User'},    $sling->{'Pass'},
-        $sling->{'Auth'}, $sling->{'Verbose'}, $sling->{'Log'}
-    );
+    my $authn      = new Apache::Sling::Authn( \$sling );
     my $ldap_synch = new Apache::Sling::LDAPSynch(
         ${ $config->{'ldap-host'} },
         ${ $config->{'ldap-base'} },
@@ -523,7 +500,10 @@ sub user_config {
     my $add;
     my $change_password;
     my $delete;
+    my $email;
     my $exists;
+    my $first_name;
+    my $last_name;
     my $me;
     my $new_password;
     my @property;
@@ -545,7 +525,10 @@ sub user_config {
         'additions'       => \$additions,
         'change-password' => \$change_password,
         'delete'          => \$delete,
+        'email'           => \$email,
         'exists'          => \$exists,
+        'first-name'      => \$first_name,
+        'last-name'       => \$last_name,
         'me'              => \$me,
         'new-password'    => \$new_password,
         'password'        => \$password,
@@ -568,6 +551,19 @@ sub user_run {
     }
     $sling->check_forks;
 
+    # Handle the three special case commonly used properties:
+    if ( defined ${ $config->{'email'} } ) {
+        push @{ $config->{'property'} }, "email=" . ${ $config->{'email'} };
+    }
+    if ( defined ${ $config->{'first-name'} } ) {
+        push @{ $config->{'property'} },
+          "firstName=" . ${ $config->{'first-name'} };
+    }
+    if ( defined ${ $config->{'last-name'} } ) {
+        push @{ $config->{'property'} },
+          "lastName=" . ${ $config->{'last-name'} };
+    }
+
     if ( defined ${ $config->{'additions'} } ) {
         my $message =
           "Adding users from file \"" . ${ $config->{'additions'} } . "\":\n";
@@ -578,11 +574,7 @@ sub user_run {
             if ($pid) { push @childs, $pid; }    # parent
             elsif ( $pid == 0 ) {                # child
                     # Create a separate authorization per fork:
-                my $authn = new Apache::Sling::Authn(
-                    $sling->{'URL'},     $sling->{'User'},
-                    $sling->{'Pass'},    $sling->{'Auth'},
-                    $sling->{'Verbose'}, $sling->{'Log'}
-                );
+                my $authn = new Apache::Sling::Authn( \$sling );
                 my $user =
                   new Apache::Sling::User( \$authn, $sling->{'Verbose'},
                     $sling->{'Log'} );
@@ -597,10 +589,7 @@ sub user_run {
         foreach (@childs) { waitpid $_, 0; }
     }
     else {
-        my $authn = new Apache::Sling::Authn(
-            $sling->{'URL'},  $sling->{'User'},    $sling->{'Pass'},
-            $sling->{'Auth'}, $sling->{'Verbose'}, $sling->{'Log'}
-        );
+        my $authn = new Apache::Sling::Authn( \$sling );
         my $user =
           new Apache::Sling::User( \$authn, $sling->{'Verbose'},
             $sling->{'Log'} );
@@ -617,12 +606,12 @@ sub user_run {
             $user->add(
                 ${ $config->{'add'} },
                 ${ $config->{'password'} },
-                @{ $config->{'property'} }
+                $config->{'property'}
             );
         }
         elsif ( defined ${ $config->{'update'} } ) {
             $user->update( ${ $config->{'update'} },
-                @{ $config->{'property'} } );
+                $config->{'property'} );
         }
         elsif ( defined ${ $config->{'change-password'} } ) {
             $user->change_password(
@@ -662,6 +651,51 @@ abstraction for configuring and running the various Sling operations.
 =head2 new
 
 Create, set up, and return a Sling object.
+
+=head2 check_forks
+
+Check number of forks to create complies with maximum number of forks
+allowed.
+
+=head2 content_config
+
+Fetch hash of content configuration.
+
+=head2 content_run
+
+Run content related actions.
+
+=head2 group_config
+
+Fetch hash of group configuration.
+
+=head2 group_run
+
+Run group related actions.
+
+=head2 group_member_config
+
+Fetch hash of group membership configuration.
+
+=head2 group_member_run
+
+Run group membership related actions.
+
+=head2 ldap_synch_config
+
+Fetch hash of ldap synchronization configuration.
+
+=head2 ldap_synch_run
+
+Run ldap synchronization related actions.
+
+=head2 user_config
+
+Fetch hash of user configuration.
+
+=head2 user_run
+
+Run user related actions.
 
 =head1 USAGE
 
