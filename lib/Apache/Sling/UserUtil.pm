@@ -14,7 +14,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 #{{{sub add_setup
 
@@ -29,7 +29,7 @@ sub add_setup {
       Apache::Sling::URL::properties_array_to_string($properties);
     my $post_variables =
 "\$post_variables = [':name','$act_on_user','pwd','$act_on_pass','pwdConfirm','$act_on_pass'";
-    if ( defined $property_post_vars && $property_post_vars ne q{} ) {
+    if ( $property_post_vars ne q{} ) {
         $post_variables .= ",$property_post_vars";
     }
     $post_variables .= ']';
@@ -305,4 +305,4 @@ Daniel David Parry <perl@ddp.me.uk>
 
 LICENSE: http://dev.perl.org/licenses/artistic.html
 
-COPYRIGHT: (c) 2010 Daniel David Parry <perl@ddp.me.uk>
+COPYRIGHT: (c) 2011 Daniel David Parry <perl@ddp.me.uk>

@@ -17,7 +17,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 #{{{sub new
 
@@ -94,7 +94,7 @@ sub add_from_file {
                     {
                         croak
 'Second CSV column must be the user password, column heading must be "password". Found: "'
-                          . $column_headings[0] . "\".\n";
+                          . $column_headings[1] . "\".\n";
                     }
                     $number_of_columns = @column_headings;
                 }
@@ -353,4 +353,4 @@ Daniel David Parry <perl@ddp.me.uk>
 
 LICENSE: http://dev.perl.org/licenses/artistic.html
 
-COPYRIGHT: (c) 2010 Daniel David Parry <perl@ddp.me.uk>
+COPYRIGHT: (c) 2011 Daniel David Parry <perl@ddp.me.uk>

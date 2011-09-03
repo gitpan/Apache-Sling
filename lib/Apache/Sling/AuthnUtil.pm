@@ -13,7 +13,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 #{{{sub basic_login_setup
 sub basic_login_setup {
@@ -101,4 +101,4 @@ Daniel David Parry <perl@ddp.me.uk>
 
 LICENSE: http://dev.perl.org/licenses/artistic.html
 
-COPYRIGHT: (c) 2010 Daniel David Parry <perl@ddp.me.uk>
+COPYRIGHT: (c) 2011 Daniel David Parry <perl@ddp.me.uk>

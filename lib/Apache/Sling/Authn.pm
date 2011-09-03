@@ -19,7 +19,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 #{{{sub new
 sub new {
@@ -132,6 +132,9 @@ sub switch_user {
     if (   ( $authn->{'Username'} !~ /^$new_username$/msx )
         || ( $authn->{'Password'} !~ /^$new_password$/msx ) )
     {
+        my $old_username = $authn->{'Username'};
+        my $old_password = $authn->{'Password'};
+        my $old_type = $authn->{'Type'};
         $authn->{'Username'} = $new_username;
         $authn->{'Password'} = $new_password;
         if ( defined $type ) {
@@ -142,6 +145,10 @@ sub switch_user {
             if ($check_basic) {
                 my $success = $authn->basic_login();
                 if ( !$success ) {
+                    # Reset credentials:
+                    $authn->{'Username'} = $old_username ;
+                    $authn->{'Password'} = $old_password ;
+                    $authn->{'Type'} = $old_type ;
                     croak
                       "Basic Auth log in for user \"$new_username\" at URL \""
                       . $authn->{'BaseURL'}
@@ -153,6 +160,10 @@ sub switch_user {
             }
         }
         else {
+            # Reset credentials:
+            $authn->{'Username'} = $old_username ;
+            $authn->{'Password'} = $old_password ;
+            $authn->{'Type'} = $old_type ;
             croak "Unsupported auth type: \"$type\"\n";
         }
     }
@@ -249,4 +260,4 @@ Daniel David Parry <perl@ddp.me.uk>
 
 LICENSE: http://dev.perl.org/licenses/artistic.html
 
-COPYRIGHT: (c) 2010 Daniel David Parry <perl@ddp.me.uk>
+COPYRIGHT: (c) 2011 Daniel David Parry <perl@ddp.me.uk>
