@@ -18,7 +18,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.18';
+our $VERSION = '0.19';
 
 #{{{sub new
 
@@ -72,11 +72,16 @@ sub add {
 #{{{sub add_from_file
 sub add_from_file {
     my ( $group, $file, $fork_id, $number_of_forks ) = @_;
+    $fork_id         = defined $fork_id         ? $fork_id         : 0;
+    $number_of_forks = defined $number_of_forks ? $number_of_forks : 1;
     my $csv               = Text::CSV->new();
     my $count             = 0;
     my $number_of_columns = 0;
     my @column_headings;
-    if ( defined $file && open my ($input), '<', $file ) {
+    if ( !defined $file ) {
+        croak 'File to upload from not defined';
+    }
+    if ( open my ($input), '<', $file ) {
         while (<$input>) {
             if ( $count++ == 0 ) {
 
@@ -127,6 +132,9 @@ sub add_from_file {
             }
         }
         close $input or croak q{Problem closing input!};
+    }
+    else {
+        croak "Problem opening file: '$file'";
     }
     return 1;
 }
@@ -191,11 +199,16 @@ sub member_add {
 #{{{sub member_add_from_file
 sub member_add_from_file {
     my ( $group, $file, $fork_id, $number_of_forks ) = @_;
+    $fork_id         = defined $fork_id         ? $fork_id         : 0;
+    $number_of_forks = defined $number_of_forks ? $number_of_forks : 1;
     my $csv               = Text::CSV->new();
     my $count             = 0;
     my $number_of_columns = 0;
     my @column_headings;
-    if ( defined $file && open my ($input), '<', $file ) {
+    if ( !defined $file ) {
+        croak 'File to upload from not defined';
+    }
+    if ( open my ($input), '<', $file ) {
         while (<$input>) {
             if ( $count++ == 0 ) {
 
@@ -249,6 +262,9 @@ sub member_add_from_file {
         }
         close $input or croak q{Problem closing input!};
     }
+    else {
+        croak "Problem opening file: '$file'";
+    }
     return 1;
 }
 
@@ -287,27 +303,20 @@ sub member_exists {
     if ($success) {
         my $group_info = from_json( ${$res}->content );
         my $is_member  = 0;
-        if ( defined $group_info->{'members'} ) {
-            foreach my $member ( @{ $group_info->{'members'} } ) {
-                if (   $member eq "/system/userManager/user/$exists_member"
-                    || $member eq "/system/userManager/group/$exists_member"
-                    || $member eq "$exists_member" )
-                {
-                    $is_member = 1;
-                    last;
-                }
+        foreach my $member ( @{ $group_info->{'members'} } ) {
+            if (   $member eq "/system/userManager/user/$exists_member"
+                || $member eq "/system/userManager/group/$exists_member"
+                || $member eq "$exists_member" )
+            {
+                $is_member = 1;
+                last;
             }
-            $success = $is_member;
-            $message =
-                "\"$exists_member\" is "
-              . ( $is_member ? q{} : 'not ' )
-              . "in group \"$act_on_group\"";
         }
-        else {
-
-            # members field not defined in JSON:
-            $message = "Problem viewing group JSON: \"$act_on_group\"";
-        }
+        $success = $is_member;
+        $message =
+            "\"$exists_member\" is "
+          . ( $is_member ? q{} : 'not ' )
+          . "in group \"$act_on_group\"";
     }
     else {
         $message = "Problem viewing group: \"$act_on_group\"";
@@ -330,22 +339,14 @@ sub member_view {
     my $success = Apache::Sling::GroupUtil::view_eval($res);
     my $message;
     if ($success) {
-        my $group_info = from_json( ${$res}->content );
-        if ( defined $group_info->{'members'} ) {
-            my $number_members = @{ $group_info->{'members'} };
-            my $members =
-              "$number_members result(s) for group \"$act_on_group\":";
-            foreach my $member ( @{ $group_info->{'members'} } ) {
-                $members .= "\n$member";
-            }
-            $message = "$members";
-            $success = $number_members;
+        my $group_info     = from_json( ${$res}->content );
+        my $number_members = @{ $group_info->{'members'} };
+        my $members = "$number_members result(s) for group \"$act_on_group\":";
+        foreach my $member ( @{ $group_info->{'members'} } ) {
+            $members .= "\n$member";
         }
-        else {
-
-            # members field not defined in JSON:
-            $message = "Problem viewing group JSON: \"$act_on_group\"";
-        }
+        $message = "$members";
+        $success = $number_members;
     }
     else {
 

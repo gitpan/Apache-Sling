@@ -19,7 +19,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.18';
+our $VERSION = '0.19';
 
 #{{{sub new
 
@@ -146,7 +146,7 @@ sub authz_run {
     my $authz =
       new Apache::Sling::Authz( \$authn, $sling->{'Verbose'}, $sling->{'Log'} );
     if ( defined ${ $config->{'delete'} } ) {
-        $authz->delete( ${ $config->{'remote'} }, ${ $config->{'principal'} } );
+        $authz->del( ${ $config->{'remote'} }, ${ $config->{'principal'} } );
         Apache::Sling::Print::print_result($authz);
     }
     my @grant_privileges;
@@ -551,16 +551,16 @@ sub json_query_servlet_config {
     my $all_nodes;
 
     my %json_query_servlet_config = (
-        'auth'          => \$sling->{'Auth'},
-        'help'          => \$sling->{'Help'},
-        'log'           => \$sling->{'Log'},
-        'man'           => \$sling->{'Man'},
-        'pass'          => \$sling->{'Pass'},
-        'threads'       => \$sling->{'Threads'},
-        'url'           => \$sling->{'URL'},
-        'user'          => \$sling->{'User'},
-        'verbose'       => \$sling->{'Verbose'},
-        'all_nodes'     => \$all_nodes
+        'auth'      => \$sling->{'Auth'},
+        'help'      => \$sling->{'Help'},
+        'log'       => \$sling->{'Log'},
+        'man'       => \$sling->{'Man'},
+        'pass'      => \$sling->{'Pass'},
+        'threads'   => \$sling->{'Threads'},
+        'url'       => \$sling->{'URL'},
+        'user'      => \$sling->{'User'},
+        'verbose'   => \$sling->{'Verbose'},
+        'all_nodes' => \$all_nodes
     );
 
     return \%json_query_servlet_config;
@@ -584,8 +584,7 @@ sub json_query_servlet_run {
     my $json_query_servlet =
       new Apache::Sling::JsonQueryServlet( \$authn, $sling->{'Verbose'},
         $sling->{'Log'} );
-    if (   defined ${ $config->{'all_nodes'} } )
-    {
+    if ( defined ${ $config->{'all_nodes'} } ) {
         $json_query_servlet->all_nodes();
     }
     Apache::Sling::Print::print_result($json_query_servlet);
@@ -886,6 +885,14 @@ Fetch hash of group membership configuration.
 =head2 group_member_run
 
 Run group membership related actions.
+
+=head2 json_query_servlet_config
+
+Fetch hash of json query servlet configuration.
+
+=head2 json_query_servlet_run
+
+Run json query server related actions.
 
 =head2 ldap_synch_config
 

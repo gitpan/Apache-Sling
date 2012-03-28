@@ -16,7 +16,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.18';
+our $VERSION = '0.19';
 
 #{{{sub string_to_request
 
@@ -30,7 +30,7 @@ sub string_to_request {
 
     # Split based on the space character (\x20) only, such that
     # newlines, tabs etc are maintained in the request variables:
-    my ( $action, $target, @req_variables ) = split /\x20/, $string;
+    my ( $action, $target, @req_variables ) = split /\x20/x, $string;
     $action = ( defined $action ? $action : '' );
     my $request;
     if ( $action eq 'post' ) {
