@@ -14,7 +14,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.19';
+our $VERSION = '0.20';
 
 #{{{sub add_setup
 
@@ -109,6 +109,28 @@ sub exists_setup {
 #{{{sub exists_eval
 
 sub exists_eval {
+    my ($res) = @_;
+    return ( ${$res}->code eq '200' );
+}
+
+#}}}
+
+#{{{sub full_json_setup
+
+sub full_json_setup {
+    my ( $base_url, $remote_dest ) = @_;
+    if ( !defined $base_url ) { croak 'No base url defined!'; }
+    if ( !defined $remote_dest ) {
+        croak 'No position or ID to retrieve full json for specified!';
+    }
+    return "get $base_url/$remote_dest.infinity.json";
+}
+
+#}}}
+
+#{{{sub full_json_eval
+
+sub full_json_eval {
     my ($res) = @_;
     return ( ${$res}->code eq '200' );
 }
@@ -243,6 +265,17 @@ exists in the system.
 Inspects the result returned from issuing the request generated in exists_setup
 returning true if the result indicates the content does exist in the system,
 else false.
+
+=head2 full_json_setup
+
+Returns a textual representation of the request needed to retrieve the full JSON
+representation of a piece of content in the system.
+
+=head2 full_json_eval
+
+Inspects the result returned from issuing the request generated in
+full_json_setup returning true if the result indicates the full JSON
+representation was returned successfully else false.
 
 =head2 move_setup
 
