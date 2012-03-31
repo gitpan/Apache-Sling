@@ -16,7 +16,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 #{{{sub string_to_request
 
@@ -84,15 +84,17 @@ sub string_to_request {
             croak 'Error generating request for blank target!';
         }
     }
-    if ( ${$authn}->{'Type'} eq 'basic' ) {
-        my $username = ${$authn}->{'Username'};
-        my $password = ${$authn}->{'Password'};
-        if ( defined $username && defined $password ) {
+    if ( defined ${$authn}->{'Type'} ) {
+        if ( ${$authn}->{'Type'} eq 'basic' ) {
+            my $username = ${$authn}->{'Username'};
+            my $password = ${$authn}->{'Password'};
+            if ( defined $username && defined $password ) {
 
-            # Always add an Authorization header to deal with application not
-            # properly requesting authentication to be sent:
-            my $encoded = 'Basic ' . encode_base64("$username:$password");
-            $request->header( 'Authorization' => $encoded );
+                # Always add an Authorization header to deal with application not
+                # properly requesting authentication to be sent:
+                my $encoded = 'Basic ' . encode_base64("$username:$password");
+                $request->header( 'Authorization' => $encoded );
+            }
         }
     }
     if ( defined $verbose && $verbose >= 2 ) {
