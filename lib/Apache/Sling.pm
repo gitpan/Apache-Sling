@@ -19,7 +19,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 
 #{{{sub new
 
@@ -31,6 +31,7 @@ sub new {
     $max_allowed_forks =
       ( defined $max_allowed_forks ? $max_allowed_forks : 32 );
     my $auth;
+    my $authn;
     my $help;
     my $log;
     my $man;
@@ -43,6 +44,7 @@ sub new {
     my $sling = {
         MaxForks => $max_allowed_forks,
         Auth     => $auth,
+        Authn    => $authn,
         Help     => $help,
         Log      => $log,
         Man      => $man,
@@ -290,6 +292,10 @@ sub content_run {
       Apache::Sling::URL::strip_leading_slash( ${ $config->{'remote'} } );
     ${ $config->{'remote-source'} } = Apache::Sling::URL::strip_leading_slash(
         ${ $config->{'remote-source'} } );
+    my $authn =
+      defined $sling->{'Authn'}
+      ? ${ $sling->{'Authn'} }
+      : new Apache::Sling::Authn( \$sling );
 
     if ( defined ${ $config->{'additions'} } ) {
         my $message =
@@ -300,8 +306,9 @@ sub content_run {
             my $pid = fork;
             if ($pid) { push @childs, $pid; }    # parent
             elsif ( $pid == 0 ) {                # child
-                    # Create a separate authorization per fork:
-                my $authn = new Apache::Sling::Authn( \$sling );
+                    # Create a new separate user agent per fork in order to
+                    # ensure cookie stores are separate, then log the user in:
+                $authn->{'LWP'} = $authn->user_agent();
                 $authn->login_user();
                 my $content =
                   new Apache::Sling::Content( \$authn, $sling->{'Verbose'},
@@ -317,7 +324,6 @@ sub content_run {
         foreach (@childs) { waitpid $_, 0; }
     }
     else {
-        my $authn = new Apache::Sling::Authn( \$sling );
         $authn->login_user();
         my $content =
           new Apache::Sling::Content( \$authn, $sling->{'Verbose'},
@@ -405,6 +411,10 @@ sub group_run {
         croak 'No group config supplied!';
     }
     $sling->check_forks;
+    my $authn =
+      defined $sling->{'Authn'}
+      ? ${ $sling->{'Authn'} }
+      : new Apache::Sling::Authn( \$sling );
 
     if ( defined ${ $config->{'additions'} } ) {
         my $message =
@@ -415,8 +425,9 @@ sub group_run {
             my $pid = fork;
             if ($pid) { push @childs, $pid; }    # parent
             elsif ( $pid == 0 ) {                # child
-                    # Create a separate authorization per fork:
-                my $authn = new Apache::Sling::Authn( \$sling );
+                    # Create a new separate user agent per fork in order to
+                    # ensure cookie stores are separate, then log the user in:
+                $authn->{'LWP'} = $authn->user_agent();
                 $authn->login_user();
                 my $group =
                   new Apache::Sling::Group( \$authn, $sling->{'Verbose'},
@@ -432,7 +443,6 @@ sub group_run {
         foreach (@childs) { waitpid $_, 0; }
     }
     else {
-        my $authn = new Apache::Sling::Authn( \$sling );
         $authn->login_user();
         my $group =
           new Apache::Sling::Group( \$authn, $sling->{'Verbose'},
@@ -497,6 +507,10 @@ sub group_member_run {
         croak 'No group_member config supplied!';
     }
     $sling->check_forks;
+    my $authn =
+      defined $sling->{'Authn'}
+      ? ${ $sling->{'Authn'} }
+      : new Apache::Sling::Authn( \$sling );
 
     if ( defined ${ $config->{'additions'} } ) {
         my $message =
@@ -507,8 +521,9 @@ sub group_member_run {
             my $pid = fork;
             if ($pid) { push @childs, $pid; }    # parent
             elsif ( $pid == 0 ) {                # child
-                    # Create a separate authorization per fork:
-                my $authn = new Apache::Sling::Authn( \$sling );
+                    # Create a new separate user agent per fork in order to
+                    # ensure cookie stores are separate, then log the user in:
+                $authn->{'LWP'} = $authn->user_agent();
                 $authn->login_user();
                 my $group =
                   new Apache::Sling::Group( \$authn, $sling->{'Verbose'},
@@ -524,7 +539,6 @@ sub group_member_run {
         foreach (@childs) { waitpid $_, 0; }
     }
     else {
-        my $authn = new Apache::Sling::Authn( \$sling );
         $authn->login_user();
         my $group =
           new Apache::Sling::Group( \$authn, $sling->{'Verbose'},
@@ -659,7 +673,7 @@ sub ldap_synch_run {
     }
     $sling->check_forks;
 
-    my $authn      = new Apache::Sling::Authn( \$sling );
+    my $authn = new Apache::Sling::Authn( \$sling );
     $authn->login_user();
     my $ldap_synch = new Apache::Sling::LDAPSynch(
         ${ $config->{'ldap-host'} },
@@ -763,6 +777,10 @@ sub user_run {
         croak 'No user config supplied!';
     }
     $sling->check_forks;
+    my $authn =
+      defined $sling->{'Authn'}
+      ? ${ $sling->{'Authn'} }
+      : new Apache::Sling::Authn( \$sling );
 
     # Handle the three special case commonly used properties:
     if ( defined ${ $config->{'email'} } ) {
@@ -786,8 +804,9 @@ sub user_run {
             my $pid = fork;
             if ($pid) { push @childs, $pid; }    # parent
             elsif ( $pid == 0 ) {                # child
-                    # Create a separate authorization per fork:
-                my $authn = new Apache::Sling::Authn( \$sling );
+                    # Create a new separate user agent per fork in order to
+                    # ensure cookie stores are separate, then log the user in:
+                $authn->{'LWP'} = $authn->user_agent();
                 $authn->login_user();
                 my $user =
                   new Apache::Sling::User( \$authn, $sling->{'Verbose'},
@@ -803,7 +822,6 @@ sub user_run {
         foreach (@childs) { waitpid $_, 0; }
     }
     else {
-        my $authn = new Apache::Sling::Authn( \$sling );
         $authn->login_user();
         my $user =
           new Apache::Sling::User( \$authn, $sling->{'Verbose'},
