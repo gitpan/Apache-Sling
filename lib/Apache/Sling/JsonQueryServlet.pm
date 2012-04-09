@@ -6,6 +6,8 @@ use 5.008001;
 use strict;
 use warnings;
 use Carp;
+use Getopt::Long qw(:config bundling);
+use Apache::Sling;
 use Apache::Sling::JsonQueryServletUtil;
 use Apache::Sling::Print;
 use Apache::Sling::Request;
@@ -14,9 +16,9 @@ require Exporter;
 
 use base qw(Exporter);
 
-our @EXPORT_OK = ();
+our @EXPORT_OK = qw(command_line);
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 #{{{sub new
 sub new {
@@ -69,6 +71,137 @@ sub all_nodes {
 
 #}}}
 
+#{{{ sub command_line
+sub command_line {
+    my @ARGV = @_;
+
+    #options parsing
+    my $sling  = Apache::Sling->new;
+    my $config = config($sling);
+
+    GetOptions(
+        $config,    'auth=s',     'help|?',      'log|L=s',
+        'man|M',    'pass|p=s',   'threads|t=s', 'url|U=s',
+        'user|u=s', 'verbose|v+', 'all_nodes|a'
+    ) or help();
+
+    if ( $sling->{'Help'} ) { help(); }
+    if ( $sling->{'Man'} )  { man(); }
+
+    return run( $sling, $config );
+}
+
+#}}}
+
+#{{{sub config
+
+sub config {
+    my ($sling) = @_;
+    my $all_nodes;
+
+    my %json_query_servlet_config = (
+        'auth'      => \$sling->{'Auth'},
+        'help'      => \$sling->{'Help'},
+        'log'       => \$sling->{'Log'},
+        'man'       => \$sling->{'Man'},
+        'pass'      => \$sling->{'Pass'},
+        'threads'   => \$sling->{'Threads'},
+        'url'       => \$sling->{'URL'},
+        'user'      => \$sling->{'User'},
+        'verbose'   => \$sling->{'Verbose'},
+        'all_nodes' => \$all_nodes
+    );
+
+    return \%json_query_servlet_config;
+}
+
+#}}}
+
+#{{{ sub help
+sub help {
+
+    print <<"EOF";
+Usage: perl $0 [-OPTIONS [-MORE_OPTIONS]] [--] [PROGRAM_ARG1 ...]
+The following options are accepted:
+
+ --all_nodes or -a                 - Return a JSON representation of all nodes in the system.
+ --auth (type)                     - Specify auth type. If ommitted, default is used.
+ --help or -?                      - view the script synopsis and options.
+ --log or -L (log)                 - Log script output to specified log file.
+ --man or -M                       - view the full script documentation.
+ --pass or -p (password)           - Password of user performing json queries.
+ --threads or -t (threads)         - Used with -A, defines number of parallel
+                                     processes to have running through file.
+ --url or -U (URL)                 - URL for system being tested against.
+ --user or -u (username)           - Name of user to perform queries as.
+ --verbose or -v or -vv or -vvv    - Increase verbosity of output.
+
+Options may be merged together. -- stops processing of options.
+Space is not required between options and their arguments.
+For full details run: perl $0 --man
+EOF
+
+    return 1;
+}
+
+#}}}
+
+#{{{ sub man
+sub man {
+
+    print <<'EOF';
+json_query_servlet perl script. Provides a means of querying content in sling
+from the command line. The script also acts as a reference implementation for
+the JSON Query Servlet perl library.
+
+EOF
+
+    help();
+
+    print <<"EOF";
+Example Usage
+
+* Query all nodes in the system:
+
+ perl $0 -U http://localhost:8080 -a -u admin -p admin
+EOF
+
+    return 1;
+}
+
+#}}}
+
+#{{{sub run
+sub run {
+    my ( $sling, $config ) = @_;
+    if ( !defined $config ) {
+        croak 'No json query servlet config supplied!';
+    }
+    $sling->check_forks;
+    ${ $config->{'remote'} } =
+      Apache::Sling::URL::strip_leading_slash( ${ $config->{'remote'} } );
+    ${ $config->{'remote-source'} } = Apache::Sling::URL::strip_leading_slash(
+        ${ $config->{'remote-source'} } );
+
+    my $authn = new Apache::Sling::Authn( \$sling );
+    $authn->login_user();
+    my $json_query_servlet =
+      new Apache::Sling::JsonQueryServlet( \$authn, $sling->{'Verbose'},
+        $sling->{'Log'} );
+    my $success = 1;
+    if ( defined ${ $config->{'all_nodes'} } ) {
+        $success = $json_query_servlet->all_nodes();
+    }
+    else {
+        help();
+        return 1;
+    }
+    Apache::Sling::Print::print_result($json_query_servlet);
+    return $success;
+}
+
+#}}}
+
 1;
 
 __END__
@@ -94,6 +227,14 @@ Set a suitable message and response for the json query object.
 =head2 all_nodes
 
 Return all nodes in the sling system in JSON format.
+
+=head2 config
+
+Fetch hash of json query servlet configuration.
+
+=head2 run
+
+Run json query server related actions.
 
 =head1 USAGE
 

@@ -7,6 +7,8 @@ use strict;
 use warnings;
 use Carp;
 use Text::CSV;
+use Getopt::Long qw(:config bundling);
+use Apache::Sling;
 use Apache::Sling::Print;
 use Apache::Sling::Request;
 use Apache::Sling::UserUtil;
@@ -15,9 +17,9 @@ require Exporter;
 
 use base qw(Exporter);
 
-our @EXPORT_OK = ();
+our @EXPORT_OK = qw(command_line);
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 #{{{sub new
 
@@ -183,6 +185,85 @@ sub check_exists {
 
 #}}}
 
+#{{{ sub command_line
+sub command_line {
+    my @ARGV = @_;
+
+    #options parsing
+    my $sling  = Apache::Sling->new;
+    my $config = config($sling);
+
+    GetOptions(
+        $config,               'auth=s',
+        'help|?',              'log|L=s',
+        'man|M',               'pass|p=s',
+        'threads|t=s',         'url|U=s',
+        'user|u=s',            'verbose|v+',
+        'add|a=s',             'additions|A=s',
+        'change-password|c=s', 'delete|d=s',
+        'email|E=s',           'first-name|f=s',
+        'exists|e=s',          'last-name|l=s',
+        'new-password|n=s',    'password|w=s',
+        'property|P=s',        'update=s',
+        'view|V=s'
+    ) or help();
+
+    if ( $sling->{'Help'} ) { help(); }
+    if ( $sling->{'Man'} )  { man(); }
+
+    return run( $sling, $config );
+}
+
+#}}}
+
+#{{{sub config
+
+sub config {
+    my ($sling) = @_;
+    my $password;
+    my $additions;
+    my $add;
+    my $change_password;
+    my $delete;
+    my $email;
+    my $exists;
+    my $first_name;
+    my $last_name;
+    my $new_password;
+    my @property;
+    my $update;
+    my $view;
+
+    my %user_config = (
+        'auth'            => \$sling->{'Auth'},
+        'help'            => \$sling->{'Help'},
+        'log'             => \$sling->{'Log'},
+        'man'             => \$sling->{'Man'},
+        'pass'            => \$sling->{'Pass'},
+        'threads'         => \$sling->{'Threads'},
+        'url'             => \$sling->{'URL'},
+        'user'            => \$sling->{'User'},
+        'verbose'         => \$sling->{'Verbose'},
+        'add'             => \$add,
+        'additions'       => \$additions,
+        'change-password' => \$change_password,
+        'delete'          => \$delete,
+        'email'           => \$email,
+        'exists'          => \$exists,
+        'first-name'      => \$first_name,
+        'last-name'       => \$last_name,
+        'new-password'    => \$new_password,
+        'password'        => \$password,
+        'property'        => \@property,
+        'update'          => \$update,
+        'view'            => \$view
+    );
+
+    return \%user_config;
+}
+
+#}}}
+
 #{{{sub del
 sub del {
     my ( $user, $act_on_user ) = @_;
@@ -196,6 +277,186 @@ sub del {
     my $message = "User: \"$act_on_user\" ";
     $message .= ( $success ? 'deleted!' : 'was not deleted!' );
     $user->set_results( "$message", $res );
+    return $success;
+}
+
+#}}}
+
+#{{{ sub help
+sub help {
+
+    print <<"EOF";
+Usage: perl $0 [-OPTIONS [-MORE_OPTIONS]] [--] [PROGRAM_ARG1 ...]
+The following options are accepted:
+
+ --add or -a (actOnUser)             - add specified user name.
+ --additions or -A (file)            - file containing list of users to be added.
+ --auth (type)                       - Specify auth type. If ommitted, default is used.
+ --change-password or -c (actOnUser) - change password of specified user name.
+ --delete or -d (actOnUser)          - delete specified user name.
+ --email or -E (email)               - specify email address property for user.
+ --exists or -e (actOnUser)          - check whether specified user exists.
+ --first-name or -f (firstName)      - specify first name property for user.
+ --help or -?                        - view the script synopsis and options.
+ --last-name or -l (lastName)        - specify last name property for user.
+ --log or -L (log)                   - Log script output to specified log file.
+ --man or -M                         - view the full script documentation.
+ --me or -m                          - me returns json representing authenticated user.
+ --new-password or -n (newPassword)  - Used with -c, new password to set.
+ --password or -w (actOnPass)        - Password of user being actioned.
+ --pass or -p (password)             - Password of user performing actions.
+ --property or -P (property=value)   - Specify property to set on user.
+ --threads or -t (threads)           - Used with -A, defines number of parallel
+                                       processes to have running through file.
+ --update (actOnUser)                - update specified user name, used with -P.
+ --url or -U (URL)                   - URL for system being tested against.
+ --user or -u (username)             - Name of user to perform any actions as.
+ --verbose or -v or -vv or -vvv      - Increase verbosity of output.
+ --view or -V (actOnUser)            - view details for specified user in json format.
+
+Options may be merged together. -- stops processing of options.
+Space is not required between options and their arguments.
+For full details run: perl $0 --man
+EOF
+
+    return 1;
+}
+
+#}}}
+
+#{{{ sub man
+sub man {
+
+    print <<'EOF';
+user perl script. Provides a means of managing users in sling from the command
+line. The script also acts as a reference implementation for the User perl
+library.
+
+EOF
+
+    help();
+
+    print <<"EOF";
+Example Usage
+
+* Add user "testuser" with password "test"
+
+ perl $0 -U http://localhost:8080 -a testuser -w test
+
+* View information about authenticated user "testuser"
+
+ perl $0 -U http://localhost:8080 --me -u testuser -p test
+
+* Authenticate as admin and check whether user "testuser" exists
+
+ perl $0 -U http://localhost:8080 -e testuser -u admin -p admin
+
+* Authenticate and update "testuser" to set property p1=v1
+
+ perl $0 -U http://localhost:8080 --update testuser -P "p1=v1" -u admin -p admin
+
+* Authenticate and delete "testuser"
+
+ perl $0 -U http://localhost:8080 -d testuser -u admin -p admin
+EOF
+
+    return 1;
+}
+
+#}}}
+
+#{{{sub run
+sub run {
+    my ( $sling, $config ) = @_;
+    if ( !defined $config ) {
+        croak 'No user config supplied!';
+    }
+    $sling->check_forks;
+    my $authn =
+      defined $sling->{'Authn'}
+      ? ${ $sling->{'Authn'} }
+      : new Apache::Sling::Authn( \$sling );
+
+    # Handle the three special case commonly used properties:
+    if ( defined ${ $config->{'email'} } ) {
+        push @{ $config->{'property'} }, "email=" . ${ $config->{'email'} };
+    }
+    if ( defined ${ $config->{'first-name'} } ) {
+        push @{ $config->{'property'} },
+          "firstName=" . ${ $config->{'first-name'} };
+    }
+    if ( defined ${ $config->{'last-name'} } ) {
+        push @{ $config->{'property'} },
+          "lastName=" . ${ $config->{'last-name'} };
+    }
+
+    my $success = 1;
+
+    if ( defined ${ $config->{'additions'} } ) {
+        my $message =
+          "Adding users from file \"" . ${ $config->{'additions'} } . "\":\n";
+        Apache::Sling::Print::print_with_lock( "$message", $sling->{'Log'} );
+        my @childs = ();
+        for my $i ( 0 .. $sling->{'Threads'} ) {
+            my $pid = fork;
+            if ($pid) { push @childs, $pid; }    # parent
+            elsif ( $pid == 0 ) {                # child
+                    # Create a new separate user agent per fork in order to
+                    # ensure cookie stores are separate, then log the user in:
+                $authn->{'LWP'} = $authn->user_agent( $sling->{'Referer'} );
+                $authn->login_user();
+                my $user =
+                  new Apache::Sling::User( \$authn, $sling->{'Verbose'},
+                    $sling->{'Log'} );
+                $user->add_from_file( ${ $config->{'additions'} },
+                    $i, $sling->{'Threads'} );
+                exit 0;
+            }
+            else {
+                croak "Could not fork $i!";
+            }
+        }
+        foreach (@childs) { waitpid $_, 0; }
+    }
+    else {
+        $authn->login_user();
+        my $user =
+          new Apache::Sling::User( \$authn, $sling->{'Verbose'},
+            $sling->{'Log'} );
+        if ( defined ${ $config->{'exists'} } ) {
+            $success = $user->check_exists( ${ $config->{'exists'} } );
+        }
+        elsif ( defined ${ $config->{'add'} } ) {
+            $success = $user->add(
+                ${ $config->{'add'} },
+                ${ $config->{'password'} },
+                $config->{'property'}
+            );
+        }
+        elsif ( defined ${ $config->{'update'} } ) {
+            $success =
+              $user->update( ${ $config->{'update'} }, $config->{'property'} );
+        }
+        elsif ( defined ${ $config->{'change-password'} } ) {
+            $success = $user->change_password(
+                ${ $config->{'change-password'} },
+                ${ $config->{'password'} },
+                ${ $config->{'new-password'} },
+                ${ $config->{'new-password'} }
+            );
+        }
+        elsif ( defined ${ $config->{'delete'} } ) {
+            $success = $user->del( ${ $config->{'delete'} } );
+        }
+        elsif ( defined ${ $config->{'view'} } ) {
+            $success = $user->view( ${ $config->{'view'} } );
+        }
+        else {
+            help();
+            return 1;
+        }
+        Apache::Sling::Print::print_result($user);
+    }
     return $success;
 }
 
@@ -278,9 +539,17 @@ Change the password for a user.
 
 Check whether a user exists.
 
+=head2 config
+
+Fetch hash of user configuration.
+
 =head2 del
 
 Delete a user.
+
+=head2 run
+
+Run user related actions.
 
 =head2 update
 

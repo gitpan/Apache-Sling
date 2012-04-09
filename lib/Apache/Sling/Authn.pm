@@ -18,7 +18,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 #{{{sub new
 sub new {
@@ -27,7 +27,7 @@ sub new {
     my $verbose =
       ( defined ${$sling}->{'Verbose'} ? ${$sling}->{'Verbose'} : 0 );
 
-    my $lwp_user_agent = $class->user_agent(${$sling}->{'Referer'});
+    my $lwp_user_agent = $class->user_agent( ${$sling}->{'Referer'} );
 
     my $response;
     my $authn = {

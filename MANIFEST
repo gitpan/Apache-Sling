@@ -5,6 +5,8 @@ lib/Apache/Sling/Authz.pm
 lib/Apache/Sling/AuthzUtil.pm
 lib/Apache/Sling/Content.pm
 lib/Apache/Sling/ContentUtil.pm
+lib/Apache/Sling/GroupMember.pm
+lib/Apache/Sling/GroupMemberUtil.pm
 lib/Apache/Sling/Group.pm
 lib/Apache/Sling/GroupUtil.pm
 lib/Apache/Sling/JsonQueryServlet.pm
@@ -21,9 +23,11 @@ Makefile.PL
 MANIFEST
 META.yml
 README
+scripts/sling.pl
 t/External/Apache-Sling-Authn.t
 t/External/Apache-Sling-Authz.t
 t/External/Apache-Sling-Content.t
+t/External/Apache-Sling-GroupMember.t
 t/External/Apache-Sling-Group.t
 t/External/Apache-Sling-JsonQueryServlet.t
 t/External/Apache-Sling.t
@@ -34,8 +38,11 @@ t/Local/Apache-Sling-Authz.t
 t/Local/Apache-Sling-AuthzUtil.t
 t/Local/Apache-Sling-Content.t
 t/Local/Apache-Sling-ContentUtil.t
+t/Local/Apache-Sling-GroupMember.t
+t/Local/Apache-Sling-GroupMemberUtil.t
 t/Local/Apache-Sling-Group.t
 t/Local/Apache-Sling-GroupUtil.t
+t/Local/Apache-Sling-JsonQueryServlet.t
 t/Local/Apache-Sling-JsonQueryServletUtil.t
 t/Local/Apache-Sling-LDAPSynch.t
 t/Local/Apache-Sling-Print.t

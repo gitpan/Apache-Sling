@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 49;
+use Test::More tests => 67;
 use Test::Exception;
 
 my $sling_host = 'http://localhost:8080';
@@ -16,11 +16,14 @@ BEGIN { use_ok( 'Apache::Sling' ); }
 BEGIN { use_ok( 'Apache::Sling::Authn' ); }
 BEGIN { use_ok( 'Apache::Sling::User' ); }
 BEGIN { use_ok( 'Apache::Sling::Group' ); }
+BEGIN { use_ok( 'Apache::Sling::GroupMember' ); }
 
 # test user name:
 my $test_user = "user_test_user_$$";
 # test user pass:
 my $test_pass = "pass";
+my $test_pass1 = "pass1";
+my $test_pass2 = "pass2";
 # test user new pass:
 my $test_pass_new = "passnew";
 # test properties:
@@ -51,6 +54,9 @@ isa_ok $user, 'Apache::Sling::User', 'user';
 # group object:
 my $group = Apache::Sling::Group->new( \$authn, $verbose, $log );
 isa_ok $group, 'Apache::Sling::Group', 'group';
+# group member object:
+my $group_member = Apache::Sling::GroupMember->new( \$authn, $verbose, $log );
+isa_ok $group_member, 'Apache::Sling::GroupMember', 'group_member';
 
 # Run tests:
 ok( defined $user,
@@ -81,18 +87,18 @@ ok( $group->add( $test_group, \@test_properties ),
 ok( $group->check_exists( $test_group ),
     "User Test: Group \"$test_group\" exists." );
 # Add member to group:
-ok( $group->member_add( $test_group, $test_user ),
+ok( $group_member->add( $test_group, $test_user ),
     "User Test: Member \"$test_user\" added to \"$test_group\"." );
-ok( $group->member_exists( $test_group, $test_user ),
+ok( $group_member->check_exists( $test_group, $test_user ),
     "User Test: Member \"$test_user\" exists in \"$test_group\"." );
 # Check can still update properties:
 @test_properties = ( "user_test_edit_after_group_join=true" );
 ok( $user->update( $test_user, \@test_properties ),
     "User Test: User \"$test_user\" updated successfully." );
 # Delete test user from group:
-ok( $group->member_delete( $test_group, $test_user ),
+ok( $group_member->delete( $test_group, $test_user ),
     "User Test: Member \"$test_user\" deleted from \"$test_group\"." );
-ok( ! $group->member_exists( $test_group, $test_user ),
+ok( ! $group_member->check_exists( $test_group, $test_user ),
     "User Test: Member \"$test_user\" should no longer exist in \"$test_group\"." );
 # Cleanup Group:
 ok( $group->del( $test_group ),
@@ -170,3 +176,48 @@ ok( ! $user->check_exists( $test_upload_user2 ),
     "User Test: User \"$test_upload_user2\" should no longer exist." );
 ok( ! $user->check_exists( $test_upload_user4 ),
     "User Test: User \"$test_upload_user4\" should no longer exist." );
+
+# user object:
+$user = Apache::Sling::User->new( \$authn, $verbose, $log );
+isa_ok $user, 'Apache::Sling::User', 'user';
+
+# add user:
+
+ok( my $user_config = Apache::Sling::User::config($sling), 'check user_config function' );
+$user_config->{'add'} = \$test_user;
+$user_config->{'email'} = \"test\@example.com";
+$user_config->{'first-name'} = \"test";
+$user_config->{'last-name'} = \"test";
+$user_config->{'password'} = \$test_pass1;
+ok( Apache::Sling::User::run($sling,$user_config), q{check user_run function adding user $test_user} );
+
+ok( $user_config = Apache::Sling::User::config($sling), 'check user_config function' );
+$user_config->{'exists'} = \$test_user;
+ok( Apache::Sling::User::run($sling,$user_config), q{check user_run function check exists user $test_user} );
+
+ok( $user_config = Apache::Sling::User::config($sling), 'check user_config function' );
+$user_config->{'view'} = \$test_user;
+ok( Apache::Sling::User::run($sling,$user_config), q{check user_run function view user $test_user} );
+
+ok( $user_config = Apache::Sling::User::config($sling), 'check user_config function' );
+$user_config->{'update'} = \$test_user;
+ok( Apache::Sling::User::run($sling,$user_config), q{check user_run function update user $test_user} );
+
+ok( $user_config = Apache::Sling::User::config($sling), 'check user_config function' );
+$user_config->{'change-password'} = \$test_user;
+$user_config->{'password'} = \$test_pass1;
+$user_config->{'new-password'} = \$test_pass2;
+ok( Apache::Sling::User::run($sling,$user_config), q{check user_run function update user $test_user} );
+
+my ( $tmp_user_additions_handle, $tmp_user_additions_name ) = File::Temp::tempfile();
+ok( $user_config = Apache::Sling::User::config($sling), 'check user_config function' );
+$user_config->{'additions'} = \$tmp_user_additions_name;
+ok( Apache::Sling::User::run($sling,$user_config), q{check user_run function additions} );
+unlink( $tmp_user_additions_name ); 
+
+# Cleanup user:
+ok( $user_config = Apache::Sling::User::config($sling), 'check user_config function' );
+$user_config->{'delete'} = \$test_user;
+ok( Apache::Sling::User::run($sling,$user_config), q{check user_run function delete user $test_user} );
+ok( ! $user->check_exists( $test_user ),
+    "Sling Test: User \"$test_user\" should no longer exist." );

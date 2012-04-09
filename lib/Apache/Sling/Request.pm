@@ -16,7 +16,7 @@ use base qw(Exporter);
 
 our @EXPORT_OK = ();
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 #{{{sub string_to_request
 
@@ -90,8 +90,8 @@ sub string_to_request {
             my $password = ${$authn}->{'Password'};
             if ( defined $username && defined $password ) {
 
-                # Always add an Authorization header to deal with application not
-                # properly requesting authentication to be sent:
+               # Always add an Authorization header to deal with application not
+               # properly requesting authentication to be sent:
                 my $encoded = 'Basic ' . encode_base64("$username:$password");
                 $request->header( 'Authorization' => $encoded );
             }
