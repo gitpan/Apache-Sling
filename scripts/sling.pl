@@ -3,7 +3,7 @@
 use 5.008001;
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.24');
+use version; our $VERSION = qv('0.25');
 use Carp;
 use Pod::Usage;
 use Apache::Sling::Authz;
@@ -16,7 +16,7 @@ use Apache::Sling::User;
 
 # Fail if args are empty or undefined:
 if ( !defined $ARGV[0] || $ARGV[0] eq q{} ) {
-    croak q{Type '$0 help' for usage.};
+    croak "Type '$0 help' for usage.";
 }
 
 # Give usage info if help or man are requested:
